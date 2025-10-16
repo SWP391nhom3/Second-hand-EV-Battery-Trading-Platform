@@ -35,7 +35,7 @@ namespace EVehicleManagementAPI.Controllers
         {
             _context.Vehicles.Add(v);
             _context.SaveChanges();
-            return CreatedAtAction(nameof(GetById), new { id = v.VehicleId }, v);
+            return CreatedAtAction(nameof(GetById), new { id = v.Id }, v);
         }
 
         [HttpPut("{id}")]
@@ -44,10 +44,14 @@ namespace EVehicleManagementAPI.Controllers
             var existing = _context.Vehicles.Find(id);
             if (existing == null) return NotFound();
 
-            existing.Name = v.Name;
-            existing.Type = v.Type;
-            existing.Price = v.Price;
-            existing.Status = v.Status;
+            existing.Brand = v.Brand;
+            existing.Model = v.Model;
+            existing.ManufactureYear = v.ManufactureYear;
+            existing.MileageKm = v.MileageKm;
+            existing.BatteryCapacity = v.BatteryCapacity;
+            existing.Condition = v.Condition;
+            existing.Description = v.Description;
+            existing.MemberId = v.MemberId;
 
             _context.SaveChanges();
             return Ok(existing);

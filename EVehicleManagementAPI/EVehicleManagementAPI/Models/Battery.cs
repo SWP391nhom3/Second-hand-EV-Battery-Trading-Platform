@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace EVehicleManagementAPI.Models
 {
-    public class Vehicle
+    public class Battery
     {
-        public int Id { get; set; }
+        public int BatteryId { get; set; }
         public int MemberId { get; set; }
         public string Brand { get; set; }
-        public string Model { get; set; }
+        public decimal CapacityKWh { get; set; }
+        public int CycleCount { get; set; }
         public int ManufactureYear { get; set; }
-        public int MileageKm { get; set; }
-        public decimal BatteryCapacity { get; set; }
         public string Condition { get; set; }
         public string Description { get; set; }
 

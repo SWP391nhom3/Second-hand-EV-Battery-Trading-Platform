@@ -1,17 +1,21 @@
 using System;
+using System.Collections.Generic;
 
 namespace EVehicleManagementAPI.Models
 {
     public class Payment
     {
-        public int PaymentId { get; set; }
-
-        public int ContractsId { get; set; }
-        public Contracts Contracts { get; set; }
-
+        public int Id { get; set; }
+        public int MemberId { get; set; }
         public decimal Amount { get; set; }
-        public DateTime PaidAt { get; set; }
+        public string Method { get; set; }
+        public string TransferContent { get; set; }
+        public string Status { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public string Method { get; set; } // e.g., Card, Cash
+        // Navigation properties
+        public Member Member { get; set; }
+        public ICollection<Construct> Constructs { get; set; } = new List<Construct>();
+        public ICollection<PostPackageSub> PostPackageSubs { get; set; } = new List<PostPackageSub>();
     }
 }
