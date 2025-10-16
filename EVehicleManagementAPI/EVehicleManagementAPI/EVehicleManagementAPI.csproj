@@ -7,6 +7,8 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <PublishAot>false</PublishAot>
     <PublishTrimmed>false</PublishTrimmed>
+	  <Nullable>disable</Nullable>
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +19,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
