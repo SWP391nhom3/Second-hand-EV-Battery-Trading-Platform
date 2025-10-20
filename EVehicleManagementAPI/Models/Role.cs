@@ -6,8 +6,9 @@ namespace EVehicleManagementAPI.Models
     {
         public int RoleId { get; set; }
         public string Name { get; set; }
+        public string Status { get; set; }
 
-        // Navigation
-        public ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
+        // Navigation properties
+        public ICollection<Account> Accounts { get; set; } = new List<Account>();
     }
 }

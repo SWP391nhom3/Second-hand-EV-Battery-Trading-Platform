@@ -215,8 +215,7 @@ namespace EVehicleManagementAPI.Migrations
                         name: "FK_Posts_Batteries_BatteryId",
                         column: x => x.BatteryId,
                         principalTable: "Batteries",
-                        principalColumn: "BatteryId",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "BatteryId");
                     table.ForeignKey(
                         name: "FK_Posts_Members_MemberId",
                         column: x => x.MemberId,
@@ -227,8 +226,7 @@ namespace EVehicleManagementAPI.Migrations
                         name: "FK_Posts_Vehicles_VehicleId",
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

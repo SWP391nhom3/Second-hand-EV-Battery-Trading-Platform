@@ -1,4 +1,4 @@
-﻿using EVehicleManagementAPI.DBconnect;
+using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,83 +18,164 @@ namespace EVehicleManagementAPI.Controllers
             _context = context;
         }
 
-        // 🔹 Đăng ký tài khoản mới
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] Account account)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // Kiểm tra trùng Email hoặc Phone
-            var existingUser = await _context.Accounts
-                .FirstOrDefaultAsync(u => u.Email == account.Email || u.Phone == account.Phone);
-
-            if (existingUser != null)
+            // Check if email already exists
+            if (await _context.Accounts.AnyAsync(a => a.Email == request.Email))
             {
-                return BadRequest(new { message = "Email hoặc số điện thoại đã được đăng ký." });
+                return BadRequest(new { message = "Email already exists" });
             }
 
-            // Mã hóa mật khẩu (SHA256)
-            account.PasswordHash = HashPassword(account.PasswordHash);
-            account.CreatedAt = DateTime.Now;
-
-            // Gán role mặc định (nếu có)
-            if (account.RoleId == 0)
+            // Check if phone already exists
+            if (await _context.Accounts.AnyAsync(a => a.Phone == request.Phone))
             {
-                account.RoleId = 2; // ví dụ: 1=Admin, 2=Member
+                return BadRequest(new { message = "Phone number already exists" });
             }
+
+            // Hash password
+            var passwordHash = HashPassword(request.Password);
+
+            // Create account
+            var account = new Account
+            {
+                Email = request.Email,
+                Phone = request.Phone,
+                PasswordHash = passwordHash,
+                RoleId = 2, // Default role for members (assuming 1=Admin, 2=Member)
+                CreatedAt = DateTime.Now
+            };
 
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Đăng ký thành công", accountId = account.AccountId });
+            // Create member profile
+            var member = new Member
+            {
+                AccountId = account.AccountId,
+                FullName = request.FullName,
+                AvatarUrl = request.AvatarUrl,
+                Address = request.Address,
+                JoinedAt = DateTime.Now,
+                Rating = 0,
+                Status = "ACTIVE"
+            };
+
+            _context.Members.Add(member);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Registration successful", accountId = account.AccountId });
         }
 
-        // 🔹 Đăng nhập
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var account = await _context.Accounts
-                .FirstOrDefaultAsync(u => u.Email == request.EmailOrPhone || u.Phone == request.EmailOrPhone);
+                .Include(a => a.Role)
+                .Include(a => a.Member)
+                .FirstOrDefaultAsync(a => a.Email == request.Email);
 
-            if (account == null)
+            if (account == null || !VerifyPassword(request.Password, account.PasswordHash))
             {
-                return BadRequest(new { message = "Tài khoản không tồn tại." });
+                return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            var hashedInputPassword = HashPassword(request.Password);
-            if (account.PasswordHash != hashedInputPassword)
+            if (account.Member?.Status != "ACTIVE")
             {
-                return BadRequest(new { message = "Sai mật khẩu." });
+                return Unauthorized(new { message = "Account is not active" });
             }
 
-            // Ở đây bạn có thể thêm JWT Token (sau này)
             return Ok(new
             {
-                message = "Đăng nhập thành công",
                 accountId = account.AccountId,
                 email = account.Email,
-                roleId = account.RoleId
+                phone = account.Phone,
+                role = account.Role?.Name,
+                member = new
+                {
+                    memberId = account.Member?.MemberId,
+                    fullName = account.Member?.FullName,
+                    avatarUrl = account.Member?.AvatarUrl,
+                    rating = account.Member?.Rating
+                }
             });
         }
 
-        // 🔒 Hàm hash mật khẩu
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var account = await _context.Accounts.FindAsync(request.AccountId);
+            if (account == null)
+            {
+                return NotFound(new { message = "Account not found" });
+            }
+
+            if (!VerifyPassword(request.OldPassword, account.PasswordHash))
+            {
+                return BadRequest(new { message = "Current password is incorrect" });
+            }
+
+            account.PasswordHash = HashPassword(request.NewPassword);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Password changed successfully" });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == request.Email);
+            if (account == null)
+            {
+                return NotFound(new { message = "Email not found" });
+            }
+
+            // In a real application, you would send a reset link via email
+            // For now, we'll just return a success message
+            return Ok(new { message = "Password reset instructions sent to your email" });
+        }
+
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
             {
-                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                var builder = new StringBuilder();
-                foreach (var b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
             }
+        }
+
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            var hashedInput = HashPassword(password);
+            return hashedInput == hashedPassword;
         }
     }
 
-    // 🔹 Model phụ cho Login
+    public class RegisterRequest
+    {
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Password { get; set; }
+        public string FullName { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string? Address { get; set; }
+    }
+
     public class LoginRequest
     {
-        public string? EmailOrPhone { get; set; }
-        public string? Password { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class ChangePasswordRequest
+    {
+        public int AccountId { get; set; }
+        public string OldPassword { get; set; }
+        public string NewPassword { get; set; }
+    }
+
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; }
     }
 }
