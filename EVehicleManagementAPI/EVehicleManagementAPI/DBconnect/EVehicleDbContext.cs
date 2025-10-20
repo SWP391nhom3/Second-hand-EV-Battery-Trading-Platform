@@ -87,14 +87,14 @@ namespace EVehicleManagementAPI.DBconnect
                 .HasOne(p => p.Vehicle)
                 .WithMany(v => v.Posts)
                 .HasForeignKey(p => p.VehicleId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Configure Post -> Battery relationship (optional)
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Battery)
                 .WithMany(b => b.Posts)
                 .HasForeignKey(p => p.BatteryId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Configure PostPackage -> PostPackageSub relationship
             modelBuilder.Entity<PostPackageSub>()

@@ -589,7 +589,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Battery", "Battery")
                         .WithMany("Posts")
                         .HasForeignKey("BatteryId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("EVehicleManagementAPI.Models.Member", "Member")
                         .WithMany("Posts")
@@ -600,7 +600,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Vehicle", "Vehicle")
                         .WithMany("Posts")
                         .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Battery");
 
