@@ -6,7 +6,7 @@ namespace EVehicleManagementAPI.Models
     {
         public int AccountId { get; set; }
         public string Email { get; set; }
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
         public string PasswordHash { get; set; }
         public int RoleId { get; set; }
         public DateTime CreatedAt { get; set; }
