@@ -21,18 +21,20 @@ namespace EVehicleManagementAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            
             // Check if email already exists
             if (await _context.Accounts.AnyAsync(a => a.Email == request.Email))
             {
                 return BadRequest(new { message = "Email already exists" });
             }
 
+            /* Commented out phone check for now
             // Check if phone already exists
             if (await _context.Accounts.AnyAsync(a => a.Phone == request.Phone))
             {
                 return BadRequest(new { message = "Phone number already exists" });
             }
-
+            */
             // Hash password
             var passwordHash = HashPassword(request.Password);
 
@@ -40,7 +42,7 @@ namespace EVehicleManagementAPI.Controllers
             var account = new Account
             {
                 Email = request.Email,
-                Phone = request.Phone,
+                Phone = "", // Empty phone - can be updated later
                 PasswordHash = passwordHash,
                 RoleId = 2, // Default role for members (assuming 1=Admin, 2=Member)
                 CreatedAt = DateTime.Now
@@ -49,13 +51,13 @@ namespace EVehicleManagementAPI.Controllers
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
 
-            // Create member profile
+            // Create member profile with minimal required fields
             var member = new Member
             {
                 AccountId = account.AccountId,
                 FullName = request.FullName,
-                AvatarUrl = request.AvatarUrl,
-                Address = request.Address,
+                AvatarUrl = "", // Empty avatar - can be updated later
+                Address = "", // Empty address - can be updated later
                 JoinedAt = DateTime.Now,
                 Rating = 0,
                 Status = "ACTIVE"
@@ -154,11 +156,8 @@ namespace EVehicleManagementAPI.Controllers
     public class RegisterRequest
     {
         public string Email { get; set; }
-        public string Phone { get; set; }
         public string Password { get; set; }
         public string FullName { get; set; }
-        public string? AvatarUrl { get; set; }
-        public string? Address { get; set; }
     }
 
     public class LoginRequest

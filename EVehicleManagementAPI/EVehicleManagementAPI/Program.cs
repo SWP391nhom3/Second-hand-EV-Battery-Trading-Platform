@@ -35,7 +35,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// ✅ Thêm dòng này TRƯỚC khi map controller
+// Thêm dòng này TRƯỚC khi map controller
 app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
