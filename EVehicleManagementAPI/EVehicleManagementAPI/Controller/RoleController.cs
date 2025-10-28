@@ -166,6 +166,7 @@ namespace EVehicleManagementAPI.Controllers
             {
                 new Role { Name = "Admin", Status = "ACTIVE" },
                 new Role { Name = "Member", Status = "ACTIVE" },
+                new Role { Name = "Staff", Status = "ACTIVE" },
                 new Role { Name = "Moderator", Status = "ACTIVE" },
                 new Role { Name = "Guest", Status = "ACTIVE" }
             };
