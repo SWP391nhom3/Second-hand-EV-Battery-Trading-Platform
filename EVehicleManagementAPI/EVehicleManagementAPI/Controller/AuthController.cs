@@ -103,6 +103,31 @@ namespace EVehicleManagementAPI.Controllers
             });
         }
 
+        [HttpPost("staff-login")]
+        public async Task<IActionResult> StaffLogin([FromBody] LoginRequest request)
+        {
+            var account = await _context.Accounts
+                .Include(a => a.Role)
+                .FirstOrDefaultAsync(a => a.Email == request.Email);
+
+            if (account == null || !VerifyPassword(request.Password, account.PasswordHash))
+            {
+                return Unauthorized(new { message = "Invalid email or password" });
+            }
+
+            if (!string.Equals(account.Role?.Name, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid();
+            }
+
+            return Ok(new
+            {
+                accountId = account.AccountId,
+                email = account.Email,
+                role = account.Role?.Name
+            });
+        }
+
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {

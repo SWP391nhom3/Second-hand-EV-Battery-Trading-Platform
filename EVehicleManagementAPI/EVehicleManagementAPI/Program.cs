@@ -45,4 +45,52 @@ app.UseAuthorization();
 app.MapGet("/", () => Results.Text("App running"));
 
 app.MapControllers();
+
+// Seed Staff role and a default Staff account on startup (idempotent)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<EVehicleDbContext>();
+
+    // Ensure database exists/migrated
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch
+    {
+        // ignore migrate errors in environments without DB permission
+    }
+
+    var staffRole = db.Roles.FirstOrDefault(r => r.Name == "Staff");
+    if (staffRole == null)
+    {
+        staffRole = new EVehicleManagementAPI.Models.Role { Name = "Staff", Status = "ACTIVE" };
+        db.Roles.Add(staffRole);
+        db.SaveChanges();
+    }
+
+    // Default staff account
+    var staffEmail = "staff@demo.com";
+    var existingStaff = db.Accounts.Include(a => a.Role).FirstOrDefault(a => a.Email == staffEmail);
+    if (existingStaff == null)
+    {
+        string Hash(string s)
+        {
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(s));
+            return Convert.ToBase64String(bytes);
+        }
+
+        var account = new EVehicleManagementAPI.Models.Account
+        {
+            Email = staffEmail,
+            Phone = "",
+            PasswordHash = Hash("Staff@123"),
+            RoleId = staffRole.RoleId,
+            CreatedAt = DateTime.Now
+        };
+        db.Accounts.Add(account);
+        db.SaveChanges();
+    }
+}
 app.Run();
