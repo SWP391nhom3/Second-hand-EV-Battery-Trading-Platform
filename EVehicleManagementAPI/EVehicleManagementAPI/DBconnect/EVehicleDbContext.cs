@@ -10,6 +10,7 @@ namespace EVehicleManagementAPI.DBconnect
         {
         }
 
+        // --- DbSet declarations ---
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Member> Members { get; set; }
@@ -28,138 +29,133 @@ namespace EVehicleManagementAPI.DBconnect
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure primary keys
-            modelBuilder.Entity<PostPackage>()
-                .HasKey(pp => pp.PackageId);
+            // --- Primary keys ---
+            modelBuilder.Entity<PostPackage>().HasKey(pp => pp.PackageId);
+            modelBuilder.Entity<PostPackageSub>().HasKey(pps => pps.Id);
+            modelBuilder.Entity<ServiceFee>().HasKey(sf => sf.Id);
+            modelBuilder.Entity<ConstructFee>().HasKey(cf => cf.Id);
+            modelBuilder.Entity<Construct>().HasKey(c => c.ConstructId);
+            modelBuilder.Entity<PostRequest>().HasKey(pr => pr.Id);
 
-            modelBuilder.Entity<PostPackageSub>()
-                .HasKey(pps => pps.Id);
-
-            modelBuilder.Entity<ServiceFee>()
-                .HasKey(sf => sf.Id);
-
-            modelBuilder.Entity<ConstructFee>()
-                .HasKey(cf => cf.Id);
-
-            modelBuilder.Entity<Construct>()
-                .HasKey(c => c.ConstructId);
-
-            modelBuilder.Entity<PostRequest>()
-                .HasKey(pr => pr.Id);
-
-            // Configure Account -> Role relationship
+            // --- Account -> Role (N:1) ---
             modelBuilder.Entity<Account>()
                 .HasOne(a => a.Role)
                 .WithMany(r => r.Accounts)
                 .HasForeignKey(a => a.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure Account -> Member relationship (1:1)
+            // --- Account -> Member (1:1) ---
             modelBuilder.Entity<Account>()
                 .HasOne(a => a.Member)
                 .WithOne(m => m.Account)
                 .HasForeignKey<Member>(m => m.AccountId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Member -> Vehicle relationship
+            // --- Member -> Vehicle (1:N) ---
             modelBuilder.Entity<Vehicle>()
                 .HasOne(v => v.Member)
                 .WithMany(m => m.Vehicles)
                 .HasForeignKey(v => v.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Member -> Battery relationship
+            // --- Member -> Battery (1:N) ---
             modelBuilder.Entity<Battery>()
                 .HasOne(b => b.Member)
                 .WithMany(m => m.Batteries)
                 .HasForeignKey(b => b.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Member -> Post relationship
+            // --- Member -> Post (1:N) ---
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Member)
                 .WithMany(m => m.Posts)
                 .HasForeignKey(p => p.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Post -> Vehicle relationship (optional)
+            // --- Post -> Vehicle (optional) ---
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Vehicle)
                 .WithMany(v => v.Posts)
                 .HasForeignKey(p => p.VehicleId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // Configure Post -> Battery relationship (optional)
+            // --- Post -> Battery (optional) ---
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Battery)
                 .WithMany(b => b.Posts)
                 .HasForeignKey(p => p.BatteryId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // Configure PostPackage -> PostPackageSub relationship
+            // --- PostPackage -> PostPackageSub (1:N) ---
             modelBuilder.Entity<PostPackageSub>()
                 .HasOne(pps => pps.PostPackage)
                 .WithMany(pp => pp.PostPackageSubs)
                 .HasForeignKey(pps => pps.PackageId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure Post -> PostPackageSub relationship
+            // --- Post -> PostPackageSub (1:N) ---
             modelBuilder.Entity<PostPackageSub>()
                 .HasOne(pps => pps.Post)
                 .WithMany(p => p.PostPackageSubs)
                 .HasForeignKey(pps => pps.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Member -> PostPackageSub relationship
+            // --- Member -> PostPackageSub (1:N) ---
             modelBuilder.Entity<PostPackageSub>()
                 .HasOne(pps => pps.Member)
                 .WithMany(m => m.PostPackageSubs)
                 .HasForeignKey(pps => pps.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure Payment -> PostPackageSub relationship
+            // --- Payment -> PostPackageSub (1:N) ---
             modelBuilder.Entity<PostPackageSub>()
                 .HasOne(pps => pps.Payment)
                 .WithMany(p => p.PostPackageSubs)
                 .HasForeignKey(pps => pps.PaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure ConstructFee -> ServiceFee relationship
+            // --- ConstructFee -> ServiceFee (1:1) ---
             modelBuilder.Entity<ServiceFee>()
                 .HasOne(sf => sf.ConstructFee)
                 .WithOne(cf => cf.ServiceFee)
                 .HasForeignKey<ServiceFee>(sf => sf.ConstructFeeId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Construct -> ConstructFee relationship
+            // --- Construct -> ConstructFee (1:N) ---
             modelBuilder.Entity<ConstructFee>()
                 .HasOne(cf => cf.Construct)
                 .WithMany(c => c.ConstructFees)
                 .HasForeignKey(cf => cf.ConstructId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure Member -> ConstructFee relationship
+            // --- Member -> ConstructFee (1:N) ---
             modelBuilder.Entity<ConstructFee>()
                 .HasOne(cf => cf.Member)
                 .WithMany(m => m.ConstructFees)
                 .HasForeignKey(cf => cf.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure Payment -> Construct relationship
+            // --- Payment -> Construct (1:N) ---
             modelBuilder.Entity<Construct>()
                 .HasOne(c => c.Payment)
                 .WithMany(p => p.Constructs)
                 .HasForeignKey(c => c.PaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Configure Member -> Payment relationship
+            // --- Payment ↔ Member (Buyer/Seller) ---
             modelBuilder.Entity<Payment>()
-                .HasOne(p => p.Member)
-                .WithMany(m => m.Payments)
-                .HasForeignKey(p => p.MemberId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.Buyer)
+                .WithMany(m => m.PaymentsAsBuyer)
+                .HasForeignKey(p => p.BuyerId)
+                .OnDelete(DeleteBehavior.NoAction); // ✅ tránh vòng delete
 
-            // Configure PostRequest relationships
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Seller)
+                .WithMany(m => m.PaymentsAsSeller)
+                .HasForeignKey(p => p.SellerId)
+                .OnDelete(DeleteBehavior.NoAction); // ✅ an toàn khi xóa Seller
+
+            // --- PostRequest relationships ---
             modelBuilder.Entity<PostRequest>()
                 .HasOne(pr => pr.Post)
                 .WithMany(p => p.PostRequests)
