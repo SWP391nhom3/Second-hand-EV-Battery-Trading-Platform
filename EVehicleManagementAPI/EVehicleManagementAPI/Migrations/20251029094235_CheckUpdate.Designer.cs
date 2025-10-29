@@ -4,6 +4,7 @@ using EVehicleManagementAPI.DBconnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EVehicleManagementAPI.Migrations
 {
     [DbContext(typeof(EVehicleDbContext))]
-    partial class EVehicleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251029094235_CheckUpdate")]
+    partial class CheckUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -222,6 +225,9 @@ namespace EVehicleManagementAPI.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("MemberId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Method")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -240,6 +246,8 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BuyerId");
+
+                    b.HasIndex("MemberId");
 
                     b.HasIndex("SellerId");
 
@@ -582,13 +590,17 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Member", "Buyer")
                         .WithMany("PaymentsAsBuyer")
                         .HasForeignKey("BuyerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("EVehicleManagementAPI.Models.Member", null)
+                        .WithMany("Payments")
+                        .HasForeignKey("MemberId");
 
                     b.HasOne("EVehicleManagementAPI.Models.Member", "Seller")
                         .WithMany("PaymentsAsSeller")
                         .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Buyer");
@@ -733,6 +745,8 @@ namespace EVehicleManagementAPI.Migrations
                     b.Navigation("Batteries");
 
                     b.Navigation("ConstructFees");
+
+                    b.Navigation("Payments");
 
                     b.Navigation("PaymentsAsBuyer");
 

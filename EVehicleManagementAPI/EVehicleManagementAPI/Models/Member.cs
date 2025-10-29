@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EVehicleManagementAPI.Models
 {
@@ -14,14 +15,21 @@ namespace EVehicleManagementAPI.Models
         public decimal Rating { get; set; }
         public string Status { get; set; }
 
-        // Navigation properties
+        // --- Navigation properties ---
         public Account Account { get; set; }
+
         public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
         public ICollection<Battery> Batteries { get; set; } = new List<Battery>();
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         public ICollection<ConstructFee> ConstructFees { get; set; } = new List<ConstructFee>();
-        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public ICollection<PostPackageSub> PostPackageSubs { get; set; } = new List<PostPackageSub>();
         public ICollection<PostRequest> PostRequests { get; set; } = new List<PostRequest>();
+
+        // --- Thanh toán ---
+        [InverseProperty("Buyer")]
+        public ICollection<Payment> PaymentsAsBuyer { get; set; } = new List<Payment>();
+
+        [InverseProperty("Seller")]
+        public ICollection<Payment> PaymentsAsSeller { get; set; } = new List<Payment>();
     }
 }
