@@ -82,6 +82,19 @@ namespace EVehicleManagementAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
+            // If Staff, allow login without Member profile and without ACTIVE check
+            if (string.Equals(account.Role?.Name, "Staff", StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new
+                {
+                    accountId = account.AccountId,
+                    email = account.Email,
+                    phone = account.Phone,
+                    role = account.Role?.Name
+                });
+            }
+
+            // For non-staff, require Member ACTIVE
             if (account.Member?.Status != "ACTIVE")
             {
                 return Unauthorized(new { message = "Account is not active" });
