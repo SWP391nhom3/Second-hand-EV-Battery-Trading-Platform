@@ -16,6 +16,8 @@ namespace EVehicleManagementAPI.DBconnect
         public DbSet<Member> Members { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Battery> Batteries { get; set; }
+        public DbSet<VehicleModel> VehicleModels { get; set; }
+        public DbSet<BatteryModel> BatteryModels { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostPackage> PostPackages { get; set; }
         public DbSet<PostPackageSub> PostPackageSubs { get; set; }
@@ -60,6 +62,13 @@ namespace EVehicleManagementAPI.DBconnect
                 .HasForeignKey(v => v.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // --- VehicleModel -> Vehicle (1:N) ---
+            modelBuilder.Entity<Vehicle>()
+                .HasOne(v => v.VehicleModel)
+                .WithMany(vm => vm.Vehicles)
+                .HasForeignKey(v => v.VehicleModelId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // --- Member -> Battery (1:N) ---
             modelBuilder.Entity<Battery>()
                 .HasOne(b => b.Member)
@@ -67,12 +76,26 @@ namespace EVehicleManagementAPI.DBconnect
                 .HasForeignKey(b => b.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // --- BatteryModel -> Battery (1:N) ---
+            modelBuilder.Entity<Battery>()
+                .HasOne(b => b.BatteryModel)
+                .WithMany(bm => bm.Batteries)
+                .HasForeignKey(b => b.BatteryModelId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // --- Member -> Post (1:N) ---
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Member)
                 .WithMany(m => m.Posts)
                 .HasForeignKey(p => p.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // --- Post -> Member (Staff) (optional) ---
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.Staff)
+                .WithMany() // Staff có thể hỗ trợ nhiều Posts
+                .HasForeignKey(p => p.StaffId)
+                .OnDelete(DeleteBehavior.SetNull); // Nếu xóa Staff, set StaffId = NULL
 
             // --- Post -> Vehicle (optional) ---
             modelBuilder.Entity<Post>()

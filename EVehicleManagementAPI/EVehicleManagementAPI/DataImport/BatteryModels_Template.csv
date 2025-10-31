@@ -1,0 +1,12 @@
+Name,Brand,Chemistry,Voltage,CapacityKWh,Amperage,Weight,FormFactor,Cycles,Description
+CATL 100kWh,CATL,LFP,400,100,250,650,Prismatic,4000,CATL 100kWh - Pin LFP dung lượng cao
+CATL 60kWh,CATL,LFP,400,60,150,390,Prismatic,4000,CATL 60kWh - Pin LFP tiêu chuẩn
+CATL 80kWh,CATL,LFP,400,80,200,520,Prismatic,4000,CATL 80kWh - Pin LFP trung bình
+Panasonic 2170,Panasonic,NCA,375,75,200,480,Cylindrical,3000,Panasonic 2170 - Pin NCA cho Tesla
+Panasonic 4680,Panasonic,NCA,400,100,350,600,Cylindrical,3000,Panasonic 4680 - Pin NCA thế hệ mới
+VinES 42kWh,VinES,LFP,400,42,105,280,Prismatic,3500,VinES 42kWh - Pin cho VinFast
+VinES 90kWh,VinES,LFP,400,90,225,585,Prismatic,3500,VinES 90kWh - Pin dung lượng cao
+BYD Blade,BYD,LFP,400,82,205,535,Prismatic,5000,BYD Blade Battery - Pin LFP an toàn cao
+LG Chem 64kWh,LG Chem,NCM622,375,64,170,410,Prismatic,2500,LG Chem 64kWh - Pin NCM
+Samsung SDI 75kWh,Samsung SDI,NCM811,375,75,200,485,Prismatic,2500,Samsung SDI 75kWh - Pin NCM811
+

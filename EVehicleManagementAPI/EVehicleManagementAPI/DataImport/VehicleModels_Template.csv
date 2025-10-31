@@ -1,0 +1,12 @@
+Name,Brand,Year,Type,MotorPower,BatteryType,Voltage,MaxSpeed,Range,Weight,Seats,Description
+VF 8,VinFast,2023,SUV,300,LFP,400,180,450,2200,7,VinFast VF 8 - SUV điện hạng sang
+VF 9,VinFast,2024,SUV,350,LFP,400,200,500,2400,7,VinFast VF 9 - SUV điện cao cấp
+VF e34,VinFast,2023,Sedan,150,LFP,350,160,450,1680,5,VinFast VF e34 - Sedan điện
+Model 3,Tesla,2023,Sedan,283,NMC,375,225,567,1847,5,Tesla Model 3 - Sedan điện phổ biến
+Model Y,Tesla,2023,SUV,318,NMC,375,217,533,2003,7,Tesla Model Y - SUV điện
+Model S,Tesla,2023,Sedan,493,NMC,375,322,652,2241,5,Tesla Model S - Sedan điện cao cấp
+Atto 3,BYD,2023,SUV,150,LFP,400,160,480,1750,5,BYD Atto 3 - SUV điện giá rẻ
+Dolphin,BYD,2023,Hatchback,70,LFP,400,150,405,1625,5,BYD Dolphin - Hatchback điện
+Seal,BYD,2024,Sedan,230,LFP,400,180,570,2150,5,BYD Seal - Sedan điện
+e6,BYD,2023,MPV,160,LFP,400,130,522,2450,7,BYD e6 - MPV điện
+
