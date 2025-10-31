@@ -1,0 +1,171 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class Accounts {
+   Email: nvarchar(max)
+   Phone: nvarchar(max)
+   PasswordHash: nvarchar(max)
+   RoleId: int
+   CreatedAt: datetime2
+   GoogleId: nvarchar(max)
+   EmailVerified: bit
+   LastLoginAt: datetime2
+   AccountId: int
+}
+class Batteries {
+   MemberId: int
+   Brand: nvarchar(max)
+   CapacityKWh: decimal(18,2)
+   CycleCount: int
+   ManufactureYear: int
+   Condition: nvarchar(max)
+   Description: nvarchar(max)
+   BatteryId: int
+}
+class ConstructFees {
+   ConstructId: int
+   MemberId: int
+   ServiceName: nvarchar(max)
+   Fee: decimal(18,2)
+   CreatedAt: datetime2
+   Id: int
+}
+class Constructs {
+   Name: nvarchar(max)
+   Address: nvarchar(max)
+   Contact: nvarchar(max)
+   Type: nvarchar(max)
+   PaymentId: int
+   Status: nvarchar(max)
+   ConstructId: int
+}
+class ExternalLogins {
+   AccountId: int
+   Provider: nvarchar(450)
+   ProviderKey: nvarchar(450)
+   CreatedAt: datetime2
+   Id: int
+}
+class Members {
+   AccountId: int
+   FullName: nvarchar(max)
+   AvatarUrl: nvarchar(max)
+   Address: nvarchar(max)
+   JoinedAt: datetime2
+   Rating: decimal(18,2)
+   Status: nvarchar(max)
+   MemberId: int
+}
+class OtpCodes {
+   AccountId: int
+   Email: nvarchar(450)
+   Code: nvarchar(max)
+   Purpose: nvarchar(450)
+   ExpiresAt: datetime2
+   ConsumedAt: datetime2
+   CreatedAt: datetime2
+   Id: int
+}
+class Payments {
+   BuyerId: int
+   SellerId: int
+   Amount: decimal(18,2)
+   Method: nvarchar(max)
+   TransferContent: nvarchar(max)
+   Status: nvarchar(max)
+   CreatedAt: datetime2
+   Id: int
+}
+class PostPackageSubs {
+   PostId: int
+   PackageId: int
+   MemberId: int
+   StartDate: datetime2
+   EndDate: datetime2
+   PaymentId: int
+   Status: nvarchar(max)
+   Id: int
+}
+class PostPackages {
+   Name: nvarchar(max)
+   DurationDay: int
+   Price: decimal(18,2)
+   PriorityLevel: int
+   Description: nvarchar(max)
+   PackageId: int
+}
+class PostRequests {
+   PostId: int
+   BuyerId: int
+   ConstructId: int
+   Message: nvarchar(max)
+   OfferPrice: decimal(18,2)
+   Status: nvarchar(max)
+   CreatedAt: datetime2
+   Id: int
+}
+class Posts {
+   MemberId: int
+   VehicleId: int
+   BatteryId: int
+   Title: nvarchar(max)
+   Description: nvarchar(max)
+   Price: decimal(18,2)
+   PostType: nvarchar(max)
+   Status: nvarchar(max)
+   CreatedAt: datetime2
+   UpdatedAt: datetime2
+   ExpiryDate: datetime2
+   Featured: bit
+   PostId: int
+}
+class Roles {
+   Name: nvarchar(max)
+   Status: nvarchar(max)
+   RoleId: int
+}
+class ServiceFees {
+   ConstructFeeId: int
+   Name: nvarchar(max)
+   Percentage: decimal(18,2)
+   Status: nvarchar(max)
+   Id: int
+}
+class Vehicles {
+   MemberId: int
+   Brand: nvarchar(max)
+   Model: nvarchar(max)
+   ManufactureYear: int
+   MileageKm: int
+   BatteryCapacity: decimal(18,2)
+   Condition: nvarchar(max)
+   Description: nvarchar(max)
+   Id: int
+}
+
+Accounts         -[#595959,plain]-^  Roles           : "RoleId"
+Batteries        -[#595959,plain]-^  Members         : "MemberId"
+ConstructFees    -[#595959,plain]-^  Constructs      : "ConstructId"
+ConstructFees    -[#595959,plain]-^  Members         : "MemberId"
+Constructs       -[#595959,plain]-^  Payments        : "PaymentId:Id"
+ExternalLogins   -[#595959,plain]-^  Accounts        : "AccountId"
+Members          -[#595959,plain]-^  Accounts        : "AccountId"
+OtpCodes         -[#595959,plain]-^  Accounts        : "AccountId"
+Payments         -[#595959,plain]-^  Members         : "SellerId:MemberId"
+Payments         -[#595959,plain]-^  Members         : "BuyerId:MemberId"
+PostPackageSubs  -[#595959,plain]-^  Members         : "MemberId"
+PostPackageSubs  -[#595959,plain]-^  Payments        : "PaymentId:Id"
+PostPackageSubs  -[#595959,plain]-^  PostPackages    : "PackageId"
+PostPackageSubs  -[#595959,plain]-^  Posts           : "PostId"
+PostRequests     -[#595959,plain]-^  Constructs      : "ConstructId"
+PostRequests     -[#595959,plain]-^  Members         : "BuyerId:MemberId"
+PostRequests     -[#595959,plain]-^  Posts           : "PostId"
+Posts            -[#595959,plain]-^  Batteries       : "BatteryId"
+Posts            -[#595959,plain]-^  Members         : "MemberId"
+Posts            -[#595959,plain]-^  Vehicles        : "VehicleId:Id"
+ServiceFees      -[#595959,plain]-^  ConstructFees   : "ConstructFeeId:Id"
+Vehicles         -[#595959,plain]-^  Members         : "MemberId"
+@enduml
