@@ -24,6 +24,8 @@ namespace EVehicleManagementAPI.DBconnect
         public DbSet<Construct> Constructs { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PostRequest> PostRequests { get; set; }
+        public DbSet<ExternalLogin> ExternalLogins { get; set; }
+        public DbSet<OtpCode> OtpCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -173,6 +175,27 @@ namespace EVehicleManagementAPI.DBconnect
                 .WithMany(c => c.PostRequests)
                 .HasForeignKey(pr => pr.ConstructId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // --- Account External Logins (1:N) ---
+            modelBuilder.Entity<ExternalLogin>().HasKey(el => el.Id);
+            modelBuilder.Entity<ExternalLogin>()
+                .HasOne(el => el.Account)
+                .WithMany(a => a.ExternalLogins)
+                .HasForeignKey(el => el.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ExternalLogin>()
+                .HasIndex(el => new { el.Provider, el.ProviderKey })
+                .IsUnique();
+
+            // --- OTP Codes ---
+            modelBuilder.Entity<OtpCode>().HasKey(o => o.Id);
+            modelBuilder.Entity<OtpCode>()
+                .HasOne(o => o.Account)
+                .WithMany(a => a.OtpCodes)
+                .HasForeignKey(o => o.AccountId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<OtpCode>()
+                .HasIndex(o => new { o.Email, o.Purpose });
         }
     }
 }
