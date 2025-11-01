@@ -870,12 +870,13 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Member", "Member")
                         .WithMany("Posts")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("EVehicleManagementAPI.Models.Member", "Staff")
                         .WithMany()
-                        .HasForeignKey("StaffId");
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("EVehicleManagementAPI.Models.Vehicle", "Vehicle")
                         .WithMany("Posts")
