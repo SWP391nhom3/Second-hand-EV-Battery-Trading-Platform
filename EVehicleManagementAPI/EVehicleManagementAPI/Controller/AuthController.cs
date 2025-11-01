@@ -109,17 +109,17 @@ namespace EVehicleManagementAPI.Controllers
             {
                 token,
                 account = new
+            {
+                accountId = account.AccountId,
+                email = account.Email,
+                phone = account.Phone,
+                role = account.Role?.Name,
+                member = new
                 {
-                    accountId = account.AccountId,
-                    email = account.Email,
-                    phone = account.Phone,
-                    role = account.Role?.Name,
-                    member = new
-                    {
-                        memberId = account.Member?.MemberId,
-                        fullName = account.Member?.FullName,
-                        avatarUrl = account.Member?.AvatarUrl,
-                        rating = account.Member?.Rating
+                    memberId = account.Member?.MemberId,
+                    fullName = account.Member?.FullName,
+                    avatarUrl = account.Member?.AvatarUrl,
+                    rating = account.Member?.Rating
                     }
                 }
             });
@@ -150,10 +150,10 @@ namespace EVehicleManagementAPI.Controllers
             {
                 token,
                 account = new
-                {
-                    accountId = account.AccountId,
-                    email = account.Email,
-                    role = account.Role?.Name
+            {
+                accountId = account.AccountId,
+                email = account.Email,
+                role = account.Role?.Name
                 }
             });
         }

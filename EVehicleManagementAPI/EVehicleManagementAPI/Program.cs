@@ -22,7 +22,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // địa chỉ FE (React/Vite)
+            // Hỗ trợ cả HTTP và HTTPS cho frontend
+            policy.WithOrigins(
+                "http://localhost:5173",   // HTTP frontend
+                "https://localhost:5173"    // HTTPS frontend (nếu có)
+            )
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); // chỉ thêm nếu bạn dùng cookie/token
@@ -90,27 +94,53 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<EVehicleDbContext>();
 
     // Ensure database exists/migrated
+    // ⚠️ CHỈ dùng Migrate(), KHÔNG dùng EnsureCreated() vì:
+    // - EnsureCreated() không chạy migrations và có thể xóa/ghi đè dữ liệu
+    // - EnsureCreated() không tương thích với migration system
     try
     {
         db.Database.Migrate();
     }
-    catch
+    catch (Exception ex)
     {
-        // ignore migrate errors in environments without DB permission
+        // Log error nhưng không crash app (cho phép chạy trong môi trường không có DB permission)
+        // Trong production nên log lỗi này
+        if (app.Environment.IsDevelopment())
+        {
+            Console.WriteLine($"Migration error (non-fatal): {ex.Message}");
+        }
     }
 
-    // Đảm bảo schema được tạo nếu chưa có (phòng trường hợp migrations không áp dụng)
-    db.Database.EnsureCreated();
+    // Seeding: Tạo các default roles nếu chưa có (idempotent - an toàn với dữ liệu hiện có)
+    // Đảm bảo có đủ 3 roles cơ bản: Admin, Member, Staff (theo yêu cầu của team member)
+    var rolesToSeed = new[]
+    {
+        new { Name = "Admin", Status = "ACTIVE" },
+        new { Name = "Member", Status = "ACTIVE" },
+        new { Name = "Staff", Status = "ACTIVE" }
+    };
 
+    foreach (var roleInfo in rolesToSeed)
+    {
+        var existingRole = db.Roles.FirstOrDefault(r => r.Name == roleInfo.Name);
+        if (existingRole == null)
+        {
+            var newRole = new EVehicleManagementAPI.Models.Role 
+            { 
+                Name = roleInfo.Name, 
+                Status = roleInfo.Status 
+            };
+            db.Roles.Add(newRole);
+        }
+    }
+    db.SaveChanges(); // Save một lần sau khi check tất cả roles
+
+    // Get Staff role để dùng cho staff account (sau khi đã seed)
     var staffRole = db.Roles.FirstOrDefault(r => r.Name == "Staff");
-    if (staffRole == null)
-    {
-        staffRole = new EVehicleManagementAPI.Models.Role { Name = "Staff", Status = "ACTIVE" };
-        db.Roles.Add(staffRole);
-        db.SaveChanges();
-    }
 
-    // Default staff account
+    // Default staff account (chỉ tạo nếu Staff role đã tồn tại)
+    if (staffRole != null)
+    {
     var staffEmail = "staff@demo.com";
     var existingStaff = db.Accounts.Include(a => a.Role).FirstOrDefault(a => a.Email == staffEmail);
     if (existingStaff == null)
@@ -132,6 +162,7 @@ using (var scope = app.Services.CreateScope())
         };
         db.Accounts.Add(account);
         db.SaveChanges();
+        }
     }
 }
 app.Run();
