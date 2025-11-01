@@ -4,6 +4,7 @@ using EVehicleManagementAPI.DBconnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EVehicleManagementAPI.Migrations
 {
     [DbContext(typeof(EVehicleDbContext))]
-    partial class EVehicleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251101205825_SeedDefaultRoles")]
+    partial class SeedDefaultRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -364,7 +367,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.Property<int>("PackageId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PaymentId")
+                    b.Property<int>("PaymentId")
                         .HasColumnType("int");
 
                     b.Property<int>("PostId")
@@ -676,7 +679,8 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Payment", "Payment")
                         .WithMany("PostPackageSubs")
                         .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.HasOne("EVehicleManagementAPI.Models.Post", "Post")
                         .WithMany("PostPackageSubs")

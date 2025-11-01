@@ -4,6 +4,7 @@ using EVehicleManagementAPI.DBconnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EVehicleManagementAPI.Migrations
 {
     [DbContext(typeof(EVehicleDbContext))]
-    partial class EVehicleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251101203828_UpdateDatabase")]
+    partial class UpdateDatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -364,7 +367,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.Property<int>("PackageId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PaymentId")
+                    b.Property<int>("PaymentId")
                         .HasColumnType("int");
 
                     b.Property<int>("PostId")
@@ -451,26 +454,6 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            Name = "Admin",
-                            Status = "ACTIVE"
-                        },
-                        new
-                        {
-                            RoleId = 2,
-                            Name = "Staff",
-                            Status = "ACTIVE"
-                        },
-                        new
-                        {
-                            RoleId = 3,
-                            Name = "Member",
-                            Status = "ACTIVE"
-                        });
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.ServiceFee", b =>
@@ -603,7 +586,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Account", "Account")
                         .WithOne("Member")
                         .HasForeignKey("EVehicleManagementAPI.Models.Member", "AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
@@ -676,7 +659,8 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.Payment", "Payment")
                         .WithMany("PostPackageSubs")
                         .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EVehicleManagementAPI.Models.Post", "Post")
                         .WithMany("PostPackageSubs")
@@ -724,7 +708,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasOne("EVehicleManagementAPI.Models.ConstructFee", "ConstructFee")
                         .WithOne("ServiceFee")
                         .HasForeignKey("EVehicleManagementAPI.Models.ServiceFee", "ConstructFeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ConstructFee");

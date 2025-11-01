@@ -25,6 +25,7 @@ namespace EVehicleManagementAPI.DBconnect
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PostRequest> PostRequests { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -49,7 +50,7 @@ namespace EVehicleManagementAPI.DBconnect
                 .HasOne(a => a.Member)
                 .WithOne(m => m.Account)
                 .HasForeignKey<Member>(m => m.AccountId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict); // tránh vòng xóa
 
             // --- Member -> Vehicle (1:N) ---
             modelBuilder.Entity<Vehicle>()
@@ -112,14 +113,14 @@ namespace EVehicleManagementAPI.DBconnect
                 .HasOne(pps => pps.Payment)
                 .WithMany(p => p.PostPackageSubs)
                 .HasForeignKey(pps => pps.PaymentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             // --- ConstructFee -> ServiceFee (1:1) ---
             modelBuilder.Entity<ServiceFee>()
                 .HasOne(sf => sf.ConstructFee)
                 .WithOne(cf => cf.ServiceFee)
                 .HasForeignKey<ServiceFee>(sf => sf.ConstructFeeId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // --- Construct -> ConstructFee (1:N) ---
             modelBuilder.Entity<ConstructFee>()
@@ -147,13 +148,13 @@ namespace EVehicleManagementAPI.DBconnect
                 .HasOne(p => p.Buyer)
                 .WithMany(m => m.PaymentsAsBuyer)
                 .HasForeignKey(p => p.BuyerId)
-                .OnDelete(DeleteBehavior.NoAction); // ✅ tránh vòng delete
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.Seller)
                 .WithMany(m => m.PaymentsAsSeller)
                 .HasForeignKey(p => p.SellerId)
-                .OnDelete(DeleteBehavior.NoAction); // ✅ an toàn khi xóa Seller
+                .OnDelete(DeleteBehavior.NoAction);
 
             // --- PostRequest relationships ---
             modelBuilder.Entity<PostRequest>()
@@ -173,6 +174,13 @@ namespace EVehicleManagementAPI.DBconnect
                 .WithMany(c => c.PostRequests)
                 .HasForeignKey(pr => pr.ConstructId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // ✅ Seed Roles mặc định để khi Update-Database sẽ tự thêm
+            modelBuilder.Entity<Role>().HasData(
+                new Role { RoleId = 1, Name = "Admin", Status = "ACTIVE" },
+                new Role { RoleId = 2, Name = "Staff", Status = "ACTIVE" },
+                new Role { RoleId = 3, Name = "Member", Status = "ACTIVE" }
+            );
         }
     }
 }
