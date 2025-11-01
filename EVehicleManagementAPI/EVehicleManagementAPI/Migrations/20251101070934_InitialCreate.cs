@@ -12,6 +12,33 @@ namespace EVehicleManagementAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "BatteryModels",
+                columns: table => new
+                {
+                    BatteryModelId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Chemistry = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Voltage = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CapacityKWh = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Amperage = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    FormFactor = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Cycles = table.Column<int>(type: "int", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomSpec = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsCustom = table.Column<bool>(type: "bit", nullable: false),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BatteryModels", x => x.BatteryModelId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PostPackages",
                 columns: table => new
                 {
@@ -43,16 +70,48 @@ namespace EVehicleManagementAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VehicleModels",
+                columns: table => new
+                {
+                    VehicleModelId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MotorPower = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    BatteryType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Voltage = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    MaxSpeed = table.Column<int>(type: "int", nullable: true),
+                    Range = table.Column<int>(type: "int", nullable: true),
+                    Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Seats = table.Column<int>(type: "int", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomSpec = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsCustom = table.Column<bool>(type: "bit", nullable: false),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VehicleModels", x => x.VehicleModelId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new
                 {
                     AccountId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GoogleId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailVerified = table.Column<bool>(type: "bit", nullable: false),
+                    LastLoginAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -63,6 +122,28 @@ namespace EVehicleManagementAPI.Migrations
                         principalTable: "Roles",
                         principalColumn: "RoleId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExternalLogins",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    Provider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExternalLogins", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExternalLogins_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -91,12 +172,38 @@ namespace EVehicleManagementAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OtpCodes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AccountId = table.Column<int>(type: "int", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Purpose = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ConsumedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtpCodes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OtpCodes_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Batteries",
                 columns: table => new
                 {
                     BatteryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MemberId = table.Column<int>(type: "int", nullable: false),
+                    BatteryModelId = table.Column<int>(type: "int", nullable: true),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CapacityKWh = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CycleCount = table.Column<int>(type: "int", nullable: false),
@@ -107,6 +214,12 @@ namespace EVehicleManagementAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Batteries", x => x.BatteryId);
+                    table.ForeignKey(
+                        name: "FK_Batteries_BatteryModels_BatteryModelId",
+                        column: x => x.BatteryModelId,
+                        principalTable: "BatteryModels",
+                        principalColumn: "BatteryModelId",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Batteries_Members_MemberId",
                         column: x => x.MemberId,
@@ -121,7 +234,8 @@ namespace EVehicleManagementAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    BuyerId = table.Column<int>(type: "int", nullable: false),
+                    SellerId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Method = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TransferContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -132,11 +246,15 @@ namespace EVehicleManagementAPI.Migrations
                 {
                     table.PrimaryKey("PK_Payments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payments_Members_MemberId",
-                        column: x => x.MemberId,
+                        name: "FK_Payments_Members_BuyerId",
+                        column: x => x.BuyerId,
                         principalTable: "Members",
-                        principalColumn: "MemberId",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "MemberId");
+                    table.ForeignKey(
+                        name: "FK_Payments_Members_SellerId",
+                        column: x => x.SellerId,
+                        principalTable: "Members",
+                        principalColumn: "MemberId");
                 });
 
             migrationBuilder.CreateTable(
@@ -146,6 +264,7 @@ namespace EVehicleManagementAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MemberId = table.Column<int>(type: "int", nullable: false),
+                    VehicleModelId = table.Column<int>(type: "int", nullable: true),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ManufactureYear = table.Column<int>(type: "int", nullable: false),
@@ -163,6 +282,12 @@ namespace EVehicleManagementAPI.Migrations
                         principalTable: "Members",
                         principalColumn: "MemberId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Vehicles_VehicleModels_VehicleModelId",
+                        column: x => x.VehicleModelId,
+                        principalTable: "VehicleModels",
+                        principalColumn: "VehicleModelId",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -202,6 +327,9 @@ namespace EVehicleManagementAPI.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PostType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TransactionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StaffId = table.Column<int>(type: "int", nullable: true),
+                    ContactInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -221,7 +349,13 @@ namespace EVehicleManagementAPI.Migrations
                         column: x => x.MemberId,
                         principalTable: "Members",
                         principalColumn: "MemberId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Posts_Members_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Members",
+                        principalColumn: "MemberId",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Posts_Vehicles_VehicleId",
                         column: x => x.VehicleId,
@@ -366,6 +500,11 @@ namespace EVehicleManagementAPI.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Batteries_BatteryModelId",
+                table: "Batteries",
+                column: "BatteryModelId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Batteries_MemberId",
                 table: "Batteries",
                 column: "MemberId");
@@ -386,15 +525,41 @@ namespace EVehicleManagementAPI.Migrations
                 column: "PaymentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExternalLogins_AccountId",
+                table: "ExternalLogins",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExternalLogins_Provider_ProviderKey",
+                table: "ExternalLogins",
+                columns: new[] { "Provider", "ProviderKey" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Members_AccountId",
                 table: "Members",
                 column: "AccountId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_MemberId",
+                name: "IX_OtpCodes_AccountId",
+                table: "OtpCodes",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtpCodes_Email_Purpose",
+                table: "OtpCodes",
+                columns: new[] { "Email", "Purpose" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_BuyerId",
                 table: "Payments",
-                column: "MemberId");
+                column: "BuyerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_SellerId",
+                table: "Payments",
+                column: "SellerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PostPackageSubs_MemberId",
@@ -442,6 +607,11 @@ namespace EVehicleManagementAPI.Migrations
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_StaffId",
+                table: "Posts",
+                column: "StaffId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_VehicleId",
                 table: "Posts",
                 column: "VehicleId");
@@ -456,11 +626,22 @@ namespace EVehicleManagementAPI.Migrations
                 name: "IX_Vehicles_MemberId",
                 table: "Vehicles",
                 column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vehicles_VehicleModelId",
+                table: "Vehicles",
+                column: "VehicleModelId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ExternalLogins");
+
+            migrationBuilder.DropTable(
+                name: "OtpCodes");
+
             migrationBuilder.DropTable(
                 name: "PostPackageSubs");
 
@@ -487,6 +668,12 @@ namespace EVehicleManagementAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Constructs");
+
+            migrationBuilder.DropTable(
+                name: "BatteryModels");
+
+            migrationBuilder.DropTable(
+                name: "VehicleModels");
 
             migrationBuilder.DropTable(
                 name: "Payments");
