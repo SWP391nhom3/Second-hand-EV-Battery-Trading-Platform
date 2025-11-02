@@ -95,6 +95,7 @@ app.MapGet("/", () => Results.Text("App running"));
 app.MapControllers();
 
 // ✅ Auto-migrate database on startup (safe - only adds missing tables/columns)
+// ✅ Seed default data (idempotent - chỉ tạo nếu chưa có)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<EVehicleDbContext>();
@@ -124,16 +125,17 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
-// ✅ Seed default roles and staff account (idempotent)
+// ✅ Seed default data: roles, accounts, and test data (idempotent)
 static async Task SeedDefaultData(EVehicleDbContext db)
 {
-    // Seed Roles
+    // ========== SEED ROLES ==========
     var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
     if (adminRole == null)
     {
         adminRole = new Role { Name = "Admin", Status = "ACTIVE" };
         db.Roles.Add(adminRole);
         await db.SaveChangesAsync();
+        Console.WriteLine("✅ Admin role created");
     }
 
     var staffRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Staff");
@@ -142,6 +144,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
         staffRole = new Role { Name = "Staff", Status = "ACTIVE" };
         db.Roles.Add(staffRole);
         await db.SaveChangesAsync();
+        Console.WriteLine("✅ Staff role created");
     }
 
     var memberRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Member");
@@ -150,26 +153,254 @@ static async Task SeedDefaultData(EVehicleDbContext db)
         memberRole = new Role { Name = "Member", Status = "ACTIVE" };
         db.Roles.Add(memberRole);
         await db.SaveChangesAsync();
+        Console.WriteLine("✅ Member role created");
     }
 
-    // Seed default staff account (only if not exists)
-    var defaultStaffEmail = "staff@demo.com";
-    var defaultStaffExists = await db.Accounts.AnyAsync(a => a.Email == defaultStaffEmail);
-    if (!defaultStaffExists)
+    // ========== SEED DEFAULT ACCOUNTS ==========
+    
+    // Admin Account
+    var adminEmail = "admin@demo.com";
+    if (!await db.Accounts.AnyAsync(a => a.Email == adminEmail))
     {
-        var hashedPassword = HashPassword("Staff@123"); // Default password
-        var defaultStaff = new Account
+        var adminAccount = new Account
         {
-            Email = defaultStaffEmail,
-            PasswordHash = hashedPassword,
-            RoleId = staffRole.RoleId,
-            Phone = "0123456789",
+            Email = adminEmail,
+            PasswordHash = HashPassword("Admin@123"),
+            RoleId = adminRole.RoleId,
+            Phone = "0901234567",
             CreatedAt = DateTime.Now
         };
-        db.Accounts.Add(defaultStaff);
+        db.Accounts.Add(adminAccount);
         await db.SaveChangesAsync();
-        Console.WriteLine($"✅ Default staff account created: {defaultStaffEmail} / Staff@123");
+        Console.WriteLine($"✅ Admin account: {adminEmail} / Admin@123");
     }
+
+    // Staff Account
+    var staffEmail = "staff@demo.com";
+    if (!await db.Accounts.AnyAsync(a => a.Email == staffEmail))
+    {
+        var staffAccount = new Account
+        {
+            Email = staffEmail,
+            PasswordHash = HashPassword("Staff@123"),
+            RoleId = staffRole.RoleId,
+            Phone = "0901234568",
+            CreatedAt = DateTime.Now
+        };
+        db.Accounts.Add(staffAccount);
+        await db.SaveChangesAsync();
+        Console.WriteLine($"✅ Staff account: {staffEmail} / Staff@123");
+    }
+
+    // Test Member Accounts (3 accounts for testing)
+    var testAccounts = new[]
+    {
+        new { Email = "user1@demo.com", Password = "User1@123", Name = "Nguyễn Văn A", Phone = "0901111111" },
+        new { Email = "user2@demo.com", Password = "User2@123", Name = "Trần Thị B", Phone = "0902222222" },
+        new { Email = "user3@demo.com", Password = "User3@123", Name = "Lê Văn C", Phone = "0903333333" }
+    };
+
+    foreach (var testAccount in testAccounts)
+    {
+        if (!await db.Accounts.AnyAsync(a => a.Email == testAccount.Email))
+        {
+            var account = new Account
+            {
+                Email = testAccount.Email,
+                PasswordHash = HashPassword(testAccount.Password),
+                RoleId = memberRole.RoleId,
+                Phone = testAccount.Phone,
+                CreatedAt = DateTime.Now
+            };
+            db.Accounts.Add(account);
+            await db.SaveChangesAsync();
+
+            // Create Member record for each account
+            var member = new Member
+            {
+                AccountId = account.AccountId,
+                FullName = testAccount.Name,
+                AvatarUrl = "",
+                Address = "123 Test Street, Ho Chi Minh City",
+                JoinedAt = DateTime.Now,
+                Rating = 5.0m,
+                Status = "ACTIVE"
+            };
+            db.Members.Add(member);
+            await db.SaveChangesAsync();
+            Console.WriteLine($"✅ Test member: {testAccount.Email} / {testAccount.Password} - {testAccount.Name}");
+        }
+    }
+
+    // ========== SEED POST PACKAGES ==========
+    if (!await db.PostPackages.AnyAsync())
+    {
+        var packages = new[]
+        {
+            new PostPackage
+            {
+                Name = "Gói Cơ Bản",
+                DurationDay = 7,
+                Price = 50000,
+                PriorityLevel = 1,
+                Description = "Gói cơ bản - Hiển thị 7 ngày"
+            },
+            new PostPackage
+            {
+                Name = "Gói Tiêu Chuẩn",
+                DurationDay = 14,
+                Price = 90000,
+                PriorityLevel = 2,
+                Description = "Gói tiêu chuẩn - Hiển thị 14 ngày, ưu tiên cao hơn"
+            },
+            new PostPackage
+            {
+                Name = "Gói Premium",
+                DurationDay = 30,
+                Price = 180000,
+                PriorityLevel = 3,
+                Description = "Gói premium - Hiển thị 30 ngày, ưu tiên cao nhất, featured"
+            }
+        };
+
+        foreach (var package in packages)
+        {
+            db.PostPackages.Add(package);
+        }
+        await db.SaveChangesAsync();
+        Console.WriteLine("✅ Post packages created (3 packages)");
+    }
+
+    // ========== SEED VEHICLE MODELS (Sample) ==========
+    if (!await db.VehicleModels.AnyAsync())
+    {
+        var vehicleModels = new[]
+        {
+            new VehicleModel
+            {
+                Name = "VinFast VF e34",
+                Brand = "VinFast",
+                Year = 2021,
+                Type = "SUV",
+                MotorPower = 110,
+                BatteryType = "LFP",
+                Voltage = 400,
+                Range = 285,
+                Weight = 1650,
+                Seats = 5,
+                Description = "Mẫu xe điện SUV đầu tiên của VinFast",
+                IsCustom = false,
+                IsApproved = true,
+                CreatedAt = DateTime.Now
+            },
+            new VehicleModel
+            {
+                Name = "Tesla Model 3",
+                Brand = "Tesla",
+                Year = 2023,
+                Type = "Sedan",
+                MotorPower = 283,
+                BatteryType = "NMC",
+                Voltage = 350,
+                Range = 547,
+                Weight = 1847,
+                Seats = 5,
+                Description = "Xe điện sedan phổ biến của Tesla",
+                IsCustom = false,
+                IsApproved = true,
+                CreatedAt = DateTime.Now
+            },
+            new VehicleModel
+            {
+                Name = "PEGA CITY",
+                Brand = "PEGA",
+                Year = 2022,
+                Type = "E-Bike",
+                MotorPower = 1.5m,
+                BatteryType = "Li-ion",
+                Voltage = 48,
+                Range = 60,
+                Weight = 75,
+                Seats = 1,
+                Description = "Xe đạp điện đô thị",
+                IsCustom = false,
+                IsApproved = true,
+                CreatedAt = DateTime.Now
+            }
+        };
+
+        foreach (var model in vehicleModels)
+        {
+            db.VehicleModels.Add(model);
+        }
+        await db.SaveChangesAsync();
+        Console.WriteLine("✅ Vehicle models created (3 models)");
+    }
+
+    // ========== SEED BATTERY MODELS (Sample) ==========
+    if (!await db.BatteryModels.AnyAsync())
+    {
+        var batteryModels = new[]
+        {
+            new BatteryModel
+            {
+                Name = "Lithium-ion 48V 20Ah",
+                Brand = "LG",
+                Chemistry = "Li-ion",
+                Voltage = 48,
+                CapacityKWh = 0.96m,
+                Amperage = 20,
+                FormFactor = "Rectangular",
+                Weight = 8.5m,
+                Cycles = 2000,
+                Description = "Pin lithium-ion 48V phổ biến cho xe đạp điện",
+                IsCustom = false,
+                IsApproved = true,
+                CreatedAt = DateTime.Now
+            },
+            new BatteryModel
+            {
+                Name = "NMC 400V 60kWh",
+                Brand = "CATL",
+                Chemistry = "NMC",
+                Voltage = 400,
+                CapacityKWh = 60,
+                Amperage = 150,
+                FormFactor = "Pouch",
+                Weight = 380,
+                Cycles = 1500,
+                Description = "Pin NMC công suất cao cho xe điện",
+                IsCustom = false,
+                IsApproved = true,
+                CreatedAt = DateTime.Now
+            },
+            new BatteryModel
+            {
+                Name = "LFP 51.2V 100Ah",
+                Brand = "BYD",
+                Chemistry = "LFP",
+                Voltage = 51.2m,
+                CapacityKWh = 5.12m,
+                Amperage = 100,
+                FormFactor = "Prismatic",
+                Weight = 55,
+                Cycles = 3000,
+                Description = "Pin LFP an toàn, tuổi thọ cao",
+                IsCustom = false,
+                IsApproved = true,
+                CreatedAt = DateTime.Now
+            }
+        };
+
+        foreach (var model in batteryModels)
+        {
+            db.BatteryModels.Add(model);
+        }
+        await db.SaveChangesAsync();
+        Console.WriteLine("✅ Battery models created (3 models)");
+    }
+
+    Console.WriteLine("✅ All default data seeded successfully!");
 }
 
 // Password hashing helper (same as AuthController)
