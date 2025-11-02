@@ -168,6 +168,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
             PasswordHash = HashPassword("Admin@123"),
             RoleId = adminRole.RoleId,
             Phone = "0901234567",
+            EmailVerified = true,
             CreatedAt = DateTime.Now
         };
         db.Accounts.Add(adminAccount);
@@ -185,6 +186,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
             PasswordHash = HashPassword("Staff@123"),
             RoleId = staffRole.RoleId,
             Phone = "0901234568",
+            EmailVerified = true,
             CreatedAt = DateTime.Now
         };
         db.Accounts.Add(staffAccount);
@@ -210,6 +212,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
                 PasswordHash = HashPassword(testAccount.Password),
                 RoleId = memberRole.RoleId,
                 Phone = testAccount.Phone,
+                EmailVerified = true, // ✅ Email verified cho tất cả test accounts
                 CreatedAt = DateTime.Now
             };
             db.Accounts.Add(account);
