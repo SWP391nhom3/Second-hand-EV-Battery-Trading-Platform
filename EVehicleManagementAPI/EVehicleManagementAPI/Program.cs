@@ -35,7 +35,16 @@ builder.Services.AddDbContext<EVehicleDbContext>(options =>
 
 // JWT Auth
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "dev_dev_dev_change_me_in_production_at_least_32_characters";
+
+// Validate JWT key length
+if (jwtKey.Length < 32)
+{
+    Console.WriteLine("⚠️ WARNING: JWT Key is too short (minimum 32 characters). Using fallback key.");
+    jwtKey = "dev_dev_dev_change_me_in_production_at_least_32_characters_secure_key_2024";
+}
+
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,9 +56,30 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = signingKey
+        IssuerSigningKey = signingKey,
+        // ✅ Validate token expiration
+        ValidateLifetime = true,
+        // ✅ Cho phép clock skew (chênh lệch thời gian giữa server)
+        ClockSkew = TimeSpan.FromMinutes(5)
+    };
+    
+    // ✅ Xử lý events để log errors
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"⚠️ JWT Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            // Token hợp lệ - có thể thêm custom logic ở đây
+            return Task.CompletedTask;
+        }
     };
 });
+
+Console.WriteLine($"✅ JWT Authentication configured (Key length: {jwtKey.Length} characters)");
 
 // ✅ Thêm cấu hình CORS cho frontend
 builder.Services.AddCors(options =>
