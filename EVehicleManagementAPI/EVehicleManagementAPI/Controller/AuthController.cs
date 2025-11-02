@@ -35,20 +35,19 @@ namespace EVehicleManagementAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            
             // Check if email already exists
             if (await _context.Accounts.AnyAsync(a => a.Email == request.Email))
             {
                 return BadRequest(new { message = "Email already exists" });
             }
 
-            /* Commented out phone check for now
-            // Check if phone already exists
-            if (await _context.Accounts.AnyAsync(a => a.Phone == request.Phone))
+            // ✅ Lấy Member role từ database (không hardcode RoleId)
+            var memberRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Member");
+            if (memberRole == null)
             {
-                return BadRequest(new { message = "Phone number already exists" });
+                return StatusCode(500, new { message = "Member role not found. Please ensure roles are seeded." });
             }
-            */
+
             // Hash password
             var passwordHash = HashPassword(request.Password);
 
@@ -58,7 +57,8 @@ namespace EVehicleManagementAPI.Controllers
                 Email = request.Email,
                 Phone = "", // Empty phone - can be updated later
                 PasswordHash = passwordHash,
-                RoleId = 2, // Default role for members (assuming 1=Admin, 2=Member)
+                RoleId = memberRole.RoleId, // ✅ Dùng Member role từ DB
+                EmailVerified = true, // ✅ Tự động verify email khi đăng ký thủ công
                 CreatedAt = DateTime.Now
             };
 
@@ -289,18 +289,21 @@ namespace EVehicleManagementAPI.Controllers
             });
         }
 
-        // ==== GOOGLE OAUTH ====
+        // ==== GOOGLE OAUTH ==== (DISABLED - FE chưa làm tới)
         [HttpGet("google/start")]
         public IActionResult GoogleStart([FromQuery] string state)
         {
-            state ??= Guid.NewGuid().ToString("N");
-            var url = _google.BuildAuthorizationUrl(state);
-            return Ok(new { url, state });
+            // ✅ Disable Google OAuth - FE chưa làm tới
+            return BadRequest(new { message = "Google OAuth is temporarily disabled" });
         }
 
         [HttpGet("google/callback")]
         public async Task<IActionResult> GoogleCallback([FromQuery] string code, [FromQuery] string state, [FromQuery] string redirectUri)
         {
+            // ✅ Disable Google OAuth - FE chưa làm tới
+            return BadRequest(new { message = "Google OAuth is temporarily disabled" });
+            
+            /* DISABLED CODE
             if (string.IsNullOrEmpty(code)) return BadRequest(new { message = "Missing code" });
             var configuredRedirect = _config["Authentication:Google:RedirectUri"];
             var effectiveRedirect = string.IsNullOrWhiteSpace(configuredRedirect) ? redirectUri : configuredRedirect;
@@ -373,7 +376,9 @@ namespace EVehicleManagementAPI.Controllers
             public string Password { get; set; }
         }
 
+        // [HttpPost("google/register-complete")]
         [HttpPost("google/register-complete")]
+        [ApiExplorerSettings(IgnoreApi = true)] // ✅ Ẩn khỏi Swagger và disable
         public async Task<IActionResult> GoogleRegisterComplete([FromBody] GoogleRegisterCompleteRequest req)
         {
             if (string.IsNullOrEmpty(req?.PendingToken) || !_pending.TryRemove(req.PendingToken, out var p))
@@ -424,10 +429,8 @@ namespace EVehicleManagementAPI.Controllers
         [HttpPost("google/login-otp")]
         public async Task<IActionResult> GoogleLoginOtp([FromBody] GoogleLoginOtpRequest req)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == req.Email);
-            if (account == null) return NotFound(new { message = "Account not found" });
-            await _otpService.CreateAndSendAsync(account.Email, "Login", account.AccountId);
-            return Ok(new { message = "OTP sent", email = account.Email });
+            // ✅ Disable Google OAuth - FE chưa làm tới
+            return BadRequest(new { message = "Google OAuth is temporarily disabled" });
         }
 
         public class OtpVerifyRequest
@@ -440,23 +443,8 @@ namespace EVehicleManagementAPI.Controllers
         [HttpPost("otp/verify")]
         public async Task<IActionResult> VerifyOtp([FromBody] OtpVerifyRequest req)
         {
-            var ok = await _otpService.VerifyAsync(req.Email, req.Code, req.Purpose);
-            if (!ok) return BadRequest(new { message = "Invalid or expired OTP" });
-
-            var account = await _context.Accounts.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == req.Email);
-            if (account == null) return NotFound(new { message = "Account not found" });
-
-            if (string.Equals(req.Purpose, "Register", StringComparison.OrdinalIgnoreCase))
-            {
-                account.EmailVerified = true;
-                await _context.SaveChangesAsync();
-            }
-
-            account.LastLoginAt = DateTime.Now;
-            await _context.SaveChangesAsync();
-
-            var token = _tokenService.CreateJwt(account.AccountId, account.Email, account.Role?.Name);
-            return Ok(new { token });
+            // ✅ Disable OTP - FE chưa làm tới
+            return BadRequest(new { message = "OTP verification is temporarily disabled" });
         }
 
         private string HashPassword(string password)
