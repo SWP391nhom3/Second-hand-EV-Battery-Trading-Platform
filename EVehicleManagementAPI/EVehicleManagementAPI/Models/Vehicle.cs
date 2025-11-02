@@ -6,6 +6,7 @@ namespace EVehicleManagementAPI.Models
     {
         public int Id { get; set; }
         public int MemberId { get; set; }
+        public int? VehicleModelId { get; set; }  // Foreign key to VehicleModel (optional)
         public string Brand { get; set; }
         public string Model { get; set; }
         public int ManufactureYear { get; set; }
@@ -16,6 +17,7 @@ namespace EVehicleManagementAPI.Models
 
         // Navigation properties
         public Member Member { get; set; }
+        public VehicleModel? VehicleModel { get; set; }  // Reference to VehicleModel
         public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
 }

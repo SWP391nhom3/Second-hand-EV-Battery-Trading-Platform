@@ -6,6 +6,7 @@ namespace EVehicleManagementAPI.Models
     {
         public int BatteryId { get; set; }
         public int MemberId { get; set; }
+        public int? BatteryModelId { get; set; }  // Foreign key to BatteryModel (optional)
         public string Brand { get; set; }
         public decimal CapacityKWh { get; set; }
         public int CycleCount { get; set; }
@@ -15,6 +16,7 @@ namespace EVehicleManagementAPI.Models
 
         // Navigation properties
         public Member Member { get; set; }
+        public BatteryModel? BatteryModel { get; set; }  // Reference to BatteryModel
         public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
 }

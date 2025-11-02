@@ -24,6 +24,8 @@ namespace EVehicleManagementAPI.DBconnect
         public DbSet<Construct> Constructs { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PostRequest> PostRequests { get; set; }
+        public DbSet<VehicleModel> VehicleModels { get; set; }
+        public DbSet<BatteryModel> BatteryModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -173,6 +175,20 @@ namespace EVehicleManagementAPI.DBconnect
                 .WithMany(c => c.PostRequests)
                 .HasForeignKey(pr => pr.ConstructId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // --- Vehicle -> VehicleModel (optional N:1) ---
+            modelBuilder.Entity<Vehicle>()
+                .HasOne(v => v.VehicleModel)
+                .WithMany(vm => vm.Vehicles)
+                .HasForeignKey(v => v.VehicleModelId)
+                .OnDelete(DeleteBehavior.SetNull); // Set null khi xóa model, không xóa vehicle
+
+            // --- Battery -> BatteryModel (optional N:1) ---
+            modelBuilder.Entity<Battery>()
+                .HasOne(b => b.BatteryModel)
+                .WithMany(bm => bm.Batteries)
+                .HasForeignKey(b => b.BatteryModelId)
+                .OnDelete(DeleteBehavior.SetNull); // Set null khi xóa model, không xóa battery
         }
     }
 }
