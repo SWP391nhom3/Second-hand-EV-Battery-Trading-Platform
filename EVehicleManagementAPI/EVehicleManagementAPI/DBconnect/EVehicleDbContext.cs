@@ -26,6 +26,8 @@ namespace EVehicleManagementAPI.DBconnect
         public DbSet<PostRequest> PostRequests { get; set; }
         public DbSet<VehicleModel> VehicleModels { get; set; }
         public DbSet<BatteryModel> BatteryModels { get; set; }
+        public DbSet<ExternalLogin> ExternalLogins { get; set; }
+        public DbSet<OtpCode> OtpCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

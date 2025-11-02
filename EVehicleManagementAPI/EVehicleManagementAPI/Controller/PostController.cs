@@ -303,4 +303,28 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(posts);
         }
     }
+
+    // DTO classes
+    public class CreatePostDto
+    {
+        public int MemberId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public string PostType { get; set; }
+        
+        // Vehicle options (priority: VehicleModelId > Vehicle > VehicleId)
+        public int? VehicleModelId { get; set; }
+        public Vehicle? Vehicle { get; set; }
+        public int? VehicleId { get; set; }
+        public string? VehicleCondition { get; set; }
+        public int? VehicleMileageKm { get; set; }
+        
+        // Battery options (priority: BatteryModelId > Battery > BatteryId)
+        public int? BatteryModelId { get; set; }
+        public Battery? Battery { get; set; }
+        public int? BatteryId { get; set; }
+        public int? BatteryCycleCount { get; set; }
+        public string? BatteryCondition { get; set; }
+    }
 }
