@@ -302,8 +302,12 @@ namespace EVehicleManagementAPI.Controllers
         {
             // ✅ Disable Google OAuth - FE chưa làm tới
             return BadRequest(new { message = "Google OAuth is temporarily disabled" });
-            
-            /* DISABLED CODE
+        }
+        
+        /*
+        // DISABLED CODE - Uncomment when FE is ready
+        private async Task<IActionResult> GoogleCallbackInternal([FromQuery] string code, [FromQuery] string state, [FromQuery] string redirectUri)
+        {
             if (string.IsNullOrEmpty(code)) return BadRequest(new { message = "Missing code" });
             var configuredRedirect = _config["Authentication:Google:RedirectUri"];
             var effectiveRedirect = string.IsNullOrWhiteSpace(configuredRedirect) ? redirectUri : configuredRedirect;
@@ -368,6 +372,7 @@ namespace EVehicleManagementAPI.Controllers
             };
             return Ok(new { mode = "register", pendingToken, profile = new { email = user.Email, name = user.Name, avatar = user.Picture } });
         }
+        */
 
         public class GoogleRegisterCompleteRequest
         {
@@ -420,6 +425,7 @@ namespace EVehicleManagementAPI.Controllers
             await _otpService.CreateAndSendAsync(account.Email, "Register", account.AccountId);
             return Ok(new { message = "OTP sent to email for registration", email = account.Email });
         }
+        */
 
         public class GoogleLoginOtpRequest
         {
