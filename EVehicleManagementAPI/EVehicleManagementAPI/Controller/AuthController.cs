@@ -407,6 +407,13 @@ namespace EVehicleManagementAPI.Controllers
     {
         public string Email { get; set; }
     }
+
+    public class CreateAdminStaffRequest
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Phone { get; set; }
+    }
 }
 
 namespace EVehicleManagementAPI.Controllers
