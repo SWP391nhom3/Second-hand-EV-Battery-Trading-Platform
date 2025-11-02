@@ -131,7 +131,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
     var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
     if (adminRole == null)
     {
-        adminRole = new Role { Name = "Admin", Description = "Administrator role", Status = "ACTIVE" };
+        adminRole = new Role { Name = "Admin", Status = "ACTIVE" };
         db.Roles.Add(adminRole);
         await db.SaveChangesAsync();
     }
@@ -139,7 +139,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
     var staffRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Staff");
     if (staffRole == null)
     {
-        staffRole = new Role { Name = "Staff", Description = "Staff role", Status = "ACTIVE" };
+        staffRole = new Role { Name = "Staff", Status = "ACTIVE" };
         db.Roles.Add(staffRole);
         await db.SaveChangesAsync();
     }
@@ -147,7 +147,7 @@ static async Task SeedDefaultData(EVehicleDbContext db)
     var memberRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Member");
     if (memberRole == null)
     {
-        memberRole = new Role { Name = "Member", Description = "Member role", Status = "ACTIVE" };
+        memberRole = new Role { Name = "Member", Status = "ACTIVE" };
         db.Roles.Add(memberRole);
         await db.SaveChangesAsync();
     }

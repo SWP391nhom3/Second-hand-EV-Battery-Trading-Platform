@@ -197,6 +197,98 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(new { message = "Password reset instructions sent to your email" });
         }
 
+        /// <summary>
+        /// Tạo tài khoản Admin (tạm thời - chỉ dùng trong development)
+        /// </summary>
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminStaffRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Email and password are required" });
+            }
+
+            // Check if email already exists
+            if (await _context.Accounts.AnyAsync(a => a.Email == request.Email))
+            {
+                return Conflict(new { message = "Email already exists" });
+            }
+
+            // Get Admin role
+            var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+            if (adminRole == null)
+            {
+                return StatusCode(500, new { message = "Admin role not found. Please ensure roles are seeded." });
+            }
+
+            // Create admin account
+            var account = new Account
+            {
+                Email = request.Email,
+                PasswordHash = HashPassword(request.Password),
+                RoleId = adminRole.RoleId,
+                Phone = request.Phone ?? "",
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Admin account created successfully",
+                accountId = account.AccountId,
+                email = account.Email,
+                role = adminRole.Name
+            });
+        }
+
+        /// <summary>
+        /// Tạo tài khoản Staff (tạm thời - chỉ dùng trong development)
+        /// </summary>
+        [HttpPost("create-staff")]
+        public async Task<IActionResult> CreateStaff([FromBody] CreateAdminStaffRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Email and password are required" });
+            }
+
+            // Check if email already exists
+            if (await _context.Accounts.AnyAsync(a => a.Email == request.Email))
+            {
+                return Conflict(new { message = "Email already exists" });
+            }
+
+            // Get Staff role
+            var staffRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Staff");
+            if (staffRole == null)
+            {
+                return StatusCode(500, new { message = "Staff role not found. Please ensure roles are seeded." });
+            }
+
+            // Create staff account
+            var account = new Account
+            {
+                Email = request.Email,
+                PasswordHash = HashPassword(request.Password),
+                RoleId = staffRole.RoleId,
+                Phone = request.Phone ?? "",
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Staff account created successfully",
+                accountId = account.AccountId,
+                email = account.Email,
+                role = staffRole.Name
+            });
+        }
+
         // ==== GOOGLE OAUTH ====
         [HttpGet("google/start")]
         public IActionResult GoogleStart([FromQuery] string state)
