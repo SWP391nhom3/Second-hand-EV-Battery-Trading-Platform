@@ -60,7 +60,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Battery", b =>
@@ -104,7 +104,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("Batteries");
+                    b.ToTable("Batteries", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.BatteryModel", b =>
@@ -167,7 +167,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasKey("BatteryModelId");
 
-                    b.ToTable("BatteryModels");
+                    b.ToTable("BatteryModels", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Construct", b =>
@@ -205,7 +205,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("PaymentId");
 
-                    b.ToTable("Constructs");
+                    b.ToTable("Constructs", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.ConstructFee", b =>
@@ -238,7 +238,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("ConstructFees");
+                    b.ToTable("ConstructFees", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.ExternalLogin", b =>
@@ -267,7 +267,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("ExternalLogins");
+                    b.ToTable("ExternalLogins", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Member", b =>
@@ -308,7 +308,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasIndex("AccountId")
                         .IsUnique();
 
-                    b.ToTable("Members");
+                    b.ToTable("Members", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.OtpCode", b =>
@@ -347,7 +347,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("OtpCodes");
+                    b.ToTable("OtpCodes", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Payment", b =>
@@ -388,7 +388,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Post", b =>
@@ -459,7 +459,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.PostPackage", b =>
@@ -489,7 +489,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasKey("PackageId");
 
-                    b.ToTable("PostPackages");
+                    b.ToTable("PostPackages", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.PostPackageSub", b =>
@@ -532,7 +532,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostPackageSubs");
+                    b.ToTable("PostPackageSubs", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.PostRequest", b =>
@@ -574,7 +574,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostRequests");
+                    b.ToTable("PostRequests", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Role", b =>
@@ -595,7 +595,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.ServiceFee", b =>
@@ -625,7 +625,7 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasIndex("ConstructFeeId")
                         .IsUnique();
 
-                    b.ToTable("ServiceFees");
+                    b.ToTable("ServiceFees", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Vehicle", b =>
@@ -673,7 +673,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasIndex("VehicleModelId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.VehicleModel", b =>
@@ -742,7 +742,7 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasKey("VehicleModelId");
 
-                    b.ToTable("VehicleModels");
+                    b.ToTable("VehicleModels", (string)null);
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Account", b =>
