@@ -18,7 +18,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // nếu frontend chạy bằng Vite
+            // Lấy allowed origins từ configuration hoặc environment variable
+            var allowedOrigins = builder.Configuration["CORS:AllowedOrigins"]?.Split(';') 
+                ?? new[] { "http://localhost:5173", "https://localhost:5173", "http://localhost:3000", "https://localhost:3000" };
+            
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyMethod()
                   .AllowAnyHeader()
                   .AllowCredentials();
