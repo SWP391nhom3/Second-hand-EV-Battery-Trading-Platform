@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EVehicleManagementAPI.Migrations
 {
     [DbContext(typeof(EVehicleDbContext))]
-    [Migration("20251029095322_UpdatePaymentRelations")]
-    partial class UpdatePaymentRelations
+    [Migration("20251102131418_AutoUpdateAllTables")]
+    partial class AutoUpdateAllTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,15 @@ namespace EVehicleManagementAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("EmailVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("GoogleId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -64,6 +73,9 @@ namespace EVehicleManagementAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BatteryId"));
+
+                    b.Property<int?>("BatteryModelId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Brand")
                         .IsRequired()
@@ -91,9 +103,74 @@ namespace EVehicleManagementAPI.Migrations
 
                     b.HasKey("BatteryId");
 
+                    b.HasIndex("BatteryModelId");
+
                     b.HasIndex("MemberId");
 
                     b.ToTable("Batteries");
+                });
+
+            modelBuilder.Entity("EVehicleManagementAPI.Models.BatteryModel", b =>
+                {
+                    b.Property<int>("BatteryModelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BatteryModelId"));
+
+                    b.Property<decimal?>("Amperage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("CapacityKWh")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Chemistry")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomSpec")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Cycles")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FormFactor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCustom")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Voltage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Weight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("BatteryModelId");
+
+                    b.ToTable("BatteryModels");
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Construct", b =>
@@ -167,6 +244,35 @@ namespace EVehicleManagementAPI.Migrations
                     b.ToTable("ConstructFees");
                 });
 
+            modelBuilder.Entity("EVehicleManagementAPI.Models.ExternalLogin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("ExternalLogins");
+                });
+
             modelBuilder.Entity("EVehicleManagementAPI.Models.Member", b =>
                 {
                     b.Property<int>("MemberId")
@@ -206,6 +312,45 @@ namespace EVehicleManagementAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Members");
+                });
+
+            modelBuilder.Entity("EVehicleManagementAPI.Models.OtpCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ConsumedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("OtpCodes");
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Payment", b =>
@@ -260,6 +405,9 @@ namespace EVehicleManagementAPI.Migrations
                     b.Property<int?>("BatteryId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ContactInfo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -283,11 +431,18 @@ namespace EVehicleManagementAPI.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -302,6 +457,8 @@ namespace EVehicleManagementAPI.Migrations
                     b.HasIndex("BatteryId");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("StaffId");
 
                     b.HasIndex("VehicleId");
 
@@ -510,11 +667,85 @@ namespace EVehicleManagementAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("VehicleModelId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MemberId");
 
+                    b.HasIndex("VehicleModelId");
+
                     b.ToTable("Vehicles");
+                });
+
+            modelBuilder.Entity("EVehicleManagementAPI.Models.VehicleModel", b =>
+                {
+                    b.Property<int>("VehicleModelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VehicleModelId"));
+
+                    b.Property<string>("BatteryType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomSpec")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCustom")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxSpeed")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("MotorPower")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Range")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Seats")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Voltage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Weight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("VehicleModelId");
+
+                    b.ToTable("VehicleModels");
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Account", b =>
@@ -530,11 +761,18 @@ namespace EVehicleManagementAPI.Migrations
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Battery", b =>
                 {
+                    b.HasOne("EVehicleManagementAPI.Models.BatteryModel", "BatteryModel")
+                        .WithMany("Batteries")
+                        .HasForeignKey("BatteryModelId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("EVehicleManagementAPI.Models.Member", "Member")
                         .WithMany("Batteries")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BatteryModel");
 
                     b.Navigation("Member");
                 });
@@ -569,6 +807,17 @@ namespace EVehicleManagementAPI.Migrations
                     b.Navigation("Member");
                 });
 
+            modelBuilder.Entity("EVehicleManagementAPI.Models.ExternalLogin", b =>
+                {
+                    b.HasOne("EVehicleManagementAPI.Models.Account", "Account")
+                        .WithMany("ExternalLogins")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("EVehicleManagementAPI.Models.Member", b =>
                 {
                     b.HasOne("EVehicleManagementAPI.Models.Account", "Account")
@@ -576,6 +825,15 @@ namespace EVehicleManagementAPI.Migrations
                         .HasForeignKey("EVehicleManagementAPI.Models.Member", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("EVehicleManagementAPI.Models.OtpCode", b =>
+                {
+                    b.HasOne("EVehicleManagementAPI.Models.Account", "Account")
+                        .WithMany("OtpCodes")
+                        .HasForeignKey("AccountId");
 
                     b.Navigation("Account");
                 });
@@ -612,6 +870,10 @@ namespace EVehicleManagementAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EVehicleManagementAPI.Models.Member", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
                     b.HasOne("EVehicleManagementAPI.Models.Vehicle", "Vehicle")
                         .WithMany("Posts")
                         .HasForeignKey("VehicleId")
@@ -620,6 +882,8 @@ namespace EVehicleManagementAPI.Migrations
                     b.Navigation("Battery");
 
                     b.Navigation("Member");
+
+                    b.Navigation("Staff");
 
                     b.Navigation("Vehicle");
                 });
@@ -704,18 +968,34 @@ namespace EVehicleManagementAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EVehicleManagementAPI.Models.VehicleModel", "VehicleModel")
+                        .WithMany("Vehicles")
+                        .HasForeignKey("VehicleModelId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Member");
+
+                    b.Navigation("VehicleModel");
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Account", b =>
                 {
+                    b.Navigation("ExternalLogins");
+
                     b.Navigation("Member")
                         .IsRequired();
+
+                    b.Navigation("OtpCodes");
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Battery", b =>
                 {
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("EVehicleManagementAPI.Models.BatteryModel", b =>
+                {
+                    b.Navigation("Batteries");
                 });
 
             modelBuilder.Entity("EVehicleManagementAPI.Models.Construct", b =>
@@ -777,6 +1057,11 @@ namespace EVehicleManagementAPI.Migrations
             modelBuilder.Entity("EVehicleManagementAPI.Models.Vehicle", b =>
                 {
                     b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("EVehicleManagementAPI.Models.VehicleModel", b =>
+                {
+                    b.Navigation("Vehicles");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -59,11 +60,17 @@ namespace EVehicleManagementAPI.Migrations
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Posts]') AND name = 'StaffId')
                 BEGIN
                     ALTER TABLE [Posts] ADD [StaffId] int NULL;
-                    CREATE INDEX [IX_Posts_StaffId] ON [Posts] ([StaffId]);
+                    IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Posts_StaffId')
+                    BEGIN
+                        CREATE INDEX [IX_Posts_StaffId] ON [Posts] ([StaffId]);
+                    END
                     IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Members')
                     BEGIN
-                        ALTER TABLE [Posts] ADD CONSTRAINT [FK_Posts_Members_StaffId] 
-                            FOREIGN KEY ([StaffId]) REFERENCES [Members] ([MemberId]) ON DELETE NO ACTION;
+                        IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Posts_Members_StaffId')
+                        BEGIN
+                            ALTER TABLE [Posts] ADD CONSTRAINT [FK_Posts_Members_StaffId] 
+                                FOREIGN KEY ([StaffId]) REFERENCES [Members] ([MemberId]) ON DELETE NO ACTION;
+                        END
                     END
                 END
             ");
@@ -76,6 +83,34 @@ namespace EVehicleManagementAPI.Migrations
                 END
             ");
 
+            // ========== UPDATE VEHICLES TABLE ==========
+            
+            // VehicleModelId column (nullable foreign key)
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Vehicles]') AND name = 'VehicleModelId')
+                BEGIN
+                    ALTER TABLE [Vehicles] ADD [VehicleModelId] int NULL;
+                    IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Vehicles_VehicleModelId')
+                    BEGIN
+                        CREATE INDEX [IX_Vehicles_VehicleModelId] ON [Vehicles] ([VehicleModelId]);
+                    END
+                END
+            ");
+
+            // ========== UPDATE BATTERIES TABLE ==========
+            
+            // BatteryModelId column (nullable foreign key)
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Batteries]') AND name = 'BatteryModelId')
+                BEGIN
+                    ALTER TABLE [Batteries] ADD [BatteryModelId] int NULL;
+                    IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Batteries_BatteryModelId')
+                    BEGIN
+                        CREATE INDEX [IX_Batteries_BatteryModelId] ON [Batteries] ([BatteryModelId]);
+                    END
+                END
+            ");
+
             // ========== CREATE NEW TABLES ==========
             
             // VehicleModels table
@@ -84,10 +119,10 @@ namespace EVehicleManagementAPI.Migrations
                 BEGIN
                     CREATE TABLE [VehicleModels] (
                         [VehicleModelId] int NOT NULL IDENTITY,
-                        [Name] nvarchar(max) NOT NULL,
-                        [Brand] nvarchar(max) NOT NULL,
+                        [Name] nvarchar(max) NOT NULL DEFAULT '',
+                        [Brand] nvarchar(max) NOT NULL DEFAULT '',
                         [Year] int NULL,
-                        [Type] nvarchar(max) NOT NULL,
+                        [Type] nvarchar(max) NOT NULL DEFAULT '',
                         [MotorPower] decimal(18,2) NULL,
                         [BatteryType] nvarchar(max) NOT NULL DEFAULT '',
                         [Voltage] decimal(18,2) NULL,
@@ -137,16 +172,18 @@ namespace EVehicleManagementAPI.Migrations
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ExternalLogins')
                 BEGIN
                     CREATE TABLE [ExternalLogins] (
-                        [ExternalLoginId] int NOT NULL IDENTITY,
-                        [AccountId] int NULL,
-                        [Provider] nvarchar(max) NOT NULL,
-                        [ProviderKey] nvarchar(max) NOT NULL,
-                        [ProviderDisplayName] nvarchar(max) NULL,
-                        [CreatedAt] datetime2 NOT NULL,
-                        CONSTRAINT [PK_ExternalLogins] PRIMARY KEY ([ExternalLoginId]),
-                        CONSTRAINT [FK_ExternalLogins_Accounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [Accounts] ([AccountId]) ON DELETE SET NULL
+                        [Id] int NOT NULL IDENTITY,
+                        [AccountId] int NOT NULL,
+                        [Provider] nvarchar(max) NOT NULL DEFAULT '',
+                        [ProviderKey] nvarchar(max) NOT NULL DEFAULT '',
+                        [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT [PK_ExternalLogins] PRIMARY KEY ([Id]),
+                        CONSTRAINT [FK_ExternalLogins_Accounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [Accounts] ([AccountId]) ON DELETE CASCADE
                     );
-                    CREATE INDEX [IX_ExternalLogins_AccountId] ON [ExternalLogins] ([AccountId]);
+                    IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_ExternalLogins_AccountId')
+                    BEGIN
+                        CREATE INDEX [IX_ExternalLogins_AccountId] ON [ExternalLogins] ([AccountId]);
+                    END
                 END
             ");
 
@@ -155,50 +192,45 @@ namespace EVehicleManagementAPI.Migrations
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'OtpCodes')
                 BEGIN
                     CREATE TABLE [OtpCodes] (
-                        [OtpCodeId] int NOT NULL IDENTITY,
+                        [Id] int NOT NULL IDENTITY,
                         [AccountId] int NULL,
-                        [Email] nvarchar(max) NOT NULL,
-                        [Code] nvarchar(max) NOT NULL,
-                        [Purpose] nvarchar(max) NOT NULL,
-                        [ExpiresAt] datetime2 NOT NULL,
-                        [IsUsed] bit NOT NULL,
-                        [CreatedAt] datetime2 NOT NULL,
-                        CONSTRAINT [PK_OtpCodes] PRIMARY KEY ([OtpCodeId]),
+                        [Email] nvarchar(max) NOT NULL DEFAULT '',
+                        [Code] nvarchar(max) NOT NULL DEFAULT '',
+                        [Purpose] nvarchar(max) NOT NULL DEFAULT '',
+                        [ExpiresAt] datetime2 NOT NULL DEFAULT GETDATE(),
+                        [ConsumedAt] datetime2 NULL,
+                        [CreatedAt] datetime2 NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT [PK_OtpCodes] PRIMARY KEY ([Id]),
                         CONSTRAINT [FK_OtpCodes_Accounts_AccountId] FOREIGN KEY ([AccountId]) REFERENCES [Accounts] ([AccountId]) ON DELETE SET NULL
                     );
-                    CREATE INDEX [IX_OtpCodes_AccountId] ON [OtpCodes] ([AccountId]);
-                END
-            ");
-
-            // ========== UPDATE VEHICLES TABLE ==========
-            
-            // VehicleModelId column (nullable foreign key)
-            migrationBuilder.Sql(@"
-                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Vehicles]') AND name = 'VehicleModelId')
-                BEGIN
-                    ALTER TABLE [Vehicles] ADD [VehicleModelId] int NULL;
-                    CREATE INDEX [IX_Vehicles_VehicleModelId] ON [Vehicles] ([VehicleModelId]);
-                    IF EXISTS (SELECT * FROM sys.tables WHERE name = 'VehicleModels')
+                    IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_OtpCodes_AccountId')
                     BEGIN
-                        ALTER TABLE [Vehicles] ADD CONSTRAINT [FK_Vehicles_VehicleModels_VehicleModelId] 
-                            FOREIGN KEY ([VehicleModelId]) REFERENCES [VehicleModels] ([VehicleModelId]) ON DELETE SET NULL;
+                        CREATE INDEX [IX_OtpCodes_AccountId] ON [OtpCodes] ([AccountId]);
                     END
                 END
             ");
 
-            // ========== UPDATE BATTERIES TABLE ==========
+            // ========== ADD FOREIGN KEYS (sau khi tạo bảng) ==========
             
-            // BatteryModelId column (nullable foreign key)
+            // FK Vehicles -> VehicleModels
             migrationBuilder.Sql(@"
-                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Batteries]') AND name = 'BatteryModelId')
+                IF EXISTS (SELECT * FROM sys.tables WHERE name = 'VehicleModels')
+                    AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Vehicles]') AND name = 'VehicleModelId')
+                    AND NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Vehicles_VehicleModels_VehicleModelId')
                 BEGIN
-                    ALTER TABLE [Batteries] ADD [BatteryModelId] int NULL;
-                    CREATE INDEX [IX_Batteries_BatteryModelId] ON [Batteries] ([BatteryModelId]);
-                    IF EXISTS (SELECT * FROM sys.tables WHERE name = 'BatteryModels')
-                    BEGIN
-                        ALTER TABLE [Batteries] ADD CONSTRAINT [FK_Batteries_BatteryModels_BatteryModelId] 
-                            FOREIGN KEY ([BatteryModelId]) REFERENCES [BatteryModels] ([BatteryModelId]) ON DELETE SET NULL;
-                    END
+                    ALTER TABLE [Vehicles] ADD CONSTRAINT [FK_Vehicles_VehicleModels_VehicleModelId] 
+                        FOREIGN KEY ([VehicleModelId]) REFERENCES [VehicleModels] ([VehicleModelId]) ON DELETE SET NULL;
+                END
+            ");
+
+            // FK Batteries -> BatteryModels
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT * FROM sys.tables WHERE name = 'BatteryModels')
+                    AND EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[Batteries]') AND name = 'BatteryModelId')
+                    AND NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Batteries_BatteryModels_BatteryModelId')
+                BEGIN
+                    ALTER TABLE [Batteries] ADD CONSTRAINT [FK_Batteries_BatteryModels_BatteryModelId] 
+                        FOREIGN KEY ([BatteryModelId]) REFERENCES [BatteryModels] ([BatteryModelId]) ON DELETE SET NULL;
                 END
             ");
         }
@@ -211,4 +243,3 @@ namespace EVehicleManagementAPI.Migrations
         }
     }
 }
-
