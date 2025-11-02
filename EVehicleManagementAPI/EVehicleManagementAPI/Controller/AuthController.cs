@@ -1,4 +1,4 @@
-using EVehicleManagementAPI.DBconnect;
+﻿using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Models;
 using EVehicleManagementAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -96,9 +96,14 @@ namespace EVehicleManagementAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            if (account.Member?.Status != "ACTIVE")
+            // Chỉ check Member.Status cho Member role, Admin và Staff không cần Member record
+            var roleName = account.Role?.Name?.ToUpper();
+            if (roleName != "ADMIN" && roleName != "STAFF")
             {
-                return Unauthorized(new { message = "Account is not active" });
+                if (account.Member?.Status != "ACTIVE")
+                {
+                    return Unauthorized(new { message = "Account is not active" });
+                }
             }
 
             var token = _tokenService.CreateJwt(account.AccountId, account.Email, account.Role?.Name);
