@@ -381,51 +381,12 @@ namespace EVehicleManagementAPI.Controllers
             public string Password { get; set; }
         }
 
-        // [HttpPost("google/register-complete")]
         [HttpPost("google/register-complete")]
-        [ApiExplorerSettings(IgnoreApi = true)] // ✅ Ẩn khỏi Swagger và disable
         public async Task<IActionResult> GoogleRegisterComplete([FromBody] GoogleRegisterCompleteRequest req)
         {
-            if (string.IsNullOrEmpty(req?.PendingToken) || !_pending.TryRemove(req.PendingToken, out var p))
-            {
-                return BadRequest(new { message = "Invalid or expired pending token" });
-            }
-
-            if (await _context.Accounts.AnyAsync(a => a.Email == p.Email))
-            {
-                return Conflict(new { message = "Email already exists" });
-            }
-
-            var account = new Account
-            {
-                Email = p.Email,
-                Phone = "",
-                PasswordHash = HashPassword(req.Password),
-                RoleId = 2,
-                CreatedAt = DateTime.Now,
-                GoogleId = p.GoogleId,
-                EmailVerified = false
-            };
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
-
-            var member = new Member
-            {
-                AccountId = account.AccountId,
-                FullName = string.IsNullOrWhiteSpace(req.FullName) ? p.FullName : req.FullName,
-                AvatarUrl = p.AvatarUrl ?? "",
-                Address = "",
-                JoinedAt = DateTime.Now,
-                Rating = 0,
-                Status = "ACTIVE"
-            };
-            _context.Members.Add(member);
-            await _context.SaveChangesAsync();
-
-            await _otpService.CreateAndSendAsync(account.Email, "Register", account.AccountId);
-            return Ok(new { message = "OTP sent to email for registration", email = account.Email });
+            // ✅ Disable Google OAuth - FE chưa làm tới
+            return BadRequest(new { message = "Google OAuth is temporarily disabled" });
         }
-        */
 
         public class GoogleLoginOtpRequest
         {
