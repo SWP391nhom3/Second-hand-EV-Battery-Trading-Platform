@@ -41,7 +41,12 @@ if (app.Environment.IsDevelopment())
 // ✅ Kích hoạt CORS trước khi dùng Authorization
 app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
+// Chỉ redirect HTTPS trong production, development cho phép cả HTTP và HTTPS
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthorization();
 app.MapControllers();
 
