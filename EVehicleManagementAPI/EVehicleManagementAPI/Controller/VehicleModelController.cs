@@ -90,6 +90,34 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(model);
         }
 
+        // POST: api/VehicleModel/{id}/image
+        // Upload ảnh và cập nhật ImageUrl (lưu file vào wwwroot/uploads/vehicle-models)
+        [HttpPost("{id}/image")]
+        public async Task<IActionResult> UploadImage(int id, IFormFile file)
+        {
+            var model = await _context.VehicleModels.FindAsync(id);
+            if (model == null) return NotFound(new { message = "VehicleModel không tồn tại" });
+            if (file == null || file.Length == 0) return BadRequest(new { message = "File rỗng" });
+
+            var uploadsRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "vehicle-models");
+            Directory.CreateDirectory(uploadsRoot);
+
+            var ext = Path.GetExtension(file.FileName);
+            var fileName = $"vm_{id}_{DateTime.Now:yyyyMMddHHmmssfff}{ext}";
+            var filePath = Path.Combine(uploadsRoot, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            model.ImageUrl = $"{baseUrl}/uploads/vehicle-models/{fileName}";
+            model.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { imageUrl = model.ImageUrl });
+        }
+
         // POST: api/VehicleModel/custom
         // Cho phép user submit model mới (IsCustom = true, IsApproved = false)
         [HttpPost("custom")]

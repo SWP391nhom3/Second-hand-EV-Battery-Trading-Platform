@@ -25,6 +25,7 @@ namespace EVehicleManagementAPI.Models
         // Thông tin bổ sung
         public string Description { get; set; } = string.Empty;            // Mô tả chi tiết
         public string? CustomSpec { get; set; }            // JSON cho các thuộc tính mở rộng (ít gặp)
+        public string? ImageUrl { get; set; }              // URL ảnh minh họa model
         
         // Cờ đánh dấu
         public bool IsCustom { get; set; } = false;        // Model do user submit (chưa chuẩn hóa)

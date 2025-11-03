@@ -116,6 +116,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+// ✅ Serve static files (wwwroot) để truy cập ảnh qua URL
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -129,6 +132,16 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<EVehicleDbContext>();
+    // ✅ Đảm bảo thư mục uploads tồn tại
+    try
+    {
+        var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        Directory.CreateDirectory(webRoot);
+        Directory.CreateDirectory(Path.Combine(webRoot, "uploads"));
+        Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "vehicle-models"));
+        Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "battery-models"));
+    }
+    catch { }
     try
     {
         // Chỉ apply migrations chưa được apply (an toàn - không ghi đè dữ liệu)
