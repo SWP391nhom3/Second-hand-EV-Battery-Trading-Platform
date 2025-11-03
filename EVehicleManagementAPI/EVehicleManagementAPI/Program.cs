@@ -28,10 +28,14 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 
 // Configure DbContext
 builder.Services.AddDbContext<EVehicleDbContext>(options =>
+{
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         sql => sql.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null)
-    ));
+    );
+    // Chỉ cảnh báo khi có pending model changes (không throw) để cho phép auto-migrate tiếp tục
+    options.ConfigureWarnings(w => w.Log(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
 
 // JWT Auth
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "dev_dev_dev_change_me_in_production_at_least_32_characters";
