@@ -148,9 +148,21 @@ using (var scope = app.Services.CreateScope())
     catch { }
     try
     {
-        // Chỉ apply migrations chưa được apply (an toàn - không ghi đè dữ liệu)
-        db.Database.Migrate();
-        Console.WriteLine("✅ Database migrations applied successfully");
+        // Tuỳ chọn: Drop & Recreate toàn bộ schema nếu bật cờ cấu hình (chỉ dùng khi DB chưa có dữ liệu)
+        var dropAndRecreate = builder.Configuration.GetValue<bool>("Database:DropAndRecreate");
+        if (dropAndRecreate)
+        {
+            Console.WriteLine("⚠️ Database:DropAndRecreate=true → Dropping and recreating database schema...");
+            db.Database.EnsureDeleted();
+            db.Database.Migrate();
+            Console.WriteLine("✅ Database dropped and recreated successfully");
+        }
+        else
+        {
+            // Apply migrations bình thường
+            db.Database.Migrate();
+            Console.WriteLine("✅ Database migrations applied successfully");
+        }
     }
     catch (Exception ex)
     {
