@@ -238,7 +238,8 @@ namespace EVehicleManagementAPI.Controllers
                     bm.Name,
                     bm.Brand,
                     bm.Chemistry,
-                    bm.CapacityKWh
+                    bm.CapacityKWh,
+                    bm.ImageUrl
                 })
                 .ToListAsync();
 

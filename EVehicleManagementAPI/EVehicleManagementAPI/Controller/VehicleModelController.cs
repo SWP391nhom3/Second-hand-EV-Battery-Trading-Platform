@@ -235,7 +235,8 @@ namespace EVehicleManagementAPI.Controllers
                     vm.Name,
                     vm.Brand,
                     vm.Year,
-                    vm.Type
+                    vm.Type,
+                    vm.ImageUrl
                 })
                 .ToListAsync();
 
