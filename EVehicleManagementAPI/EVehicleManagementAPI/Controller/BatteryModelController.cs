@@ -2,6 +2,7 @@ using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace EVehicleManagementAPI.Controllers
 {
@@ -124,21 +125,44 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(new { imageUrl = model.ImageUrl });
         }
 
-        // POST: api/BatteryModel/custom
-        // Cho phép user submit model mới (IsCustom = true, IsApproved = false)
-        [HttpPost("custom")]
-        public async Task<IActionResult> CreateCustom([FromBody] BatteryModel model)
+        public class BatteryModelCreateRequest
         {
-            if (string.IsNullOrEmpty(model.Name) || string.IsNullOrEmpty(model.Brand))
-                return BadRequest("Name và Brand là bắt buộc.");
+            [Required]
+            public string Name { get; set; }
+            [Required]
+            public string Brand { get; set; }
+            public string? Chemistry { get; set; }
+            public decimal? Voltage { get; set; }
+            public decimal? CapacityKWh { get; set; }
+            public decimal? Amperage { get; set; }
+            public decimal? Weight { get; set; }
+            public string? FormFactor { get; set; }
+            public int? Cycles { get; set; }
+            public string? Description { get; set; }
+            public string? CustomSpec { get; set; }
+            public string? ImageUrl { get; set; }
+        }
+
+        // POST: api/BatteryModel/custom
+        // Nhận body gọn (DTO) và trả về model đầy đủ có ImageUrl
+        [HttpPost("custom")]
+        public async Task<IActionResult> CreateCustom([FromBody] BatteryModelCreateRequest req)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var name = req.Name?.Trim();
+            var brand = req.Brand?.Trim();
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(brand))
+                return BadRequest(new { message = "Name và Brand là bắt buộc." });
 
             // Kiểm tra duplicate: cùng Brand, Name, Chemistry, Capacity
             var existing = await _context.BatteryModels
                 .FirstOrDefaultAsync(bm =>
-                    bm.Brand.ToLower() == model.Brand.ToLower() &&
-                    bm.Name.ToLower() == model.Name.ToLower() &&
-                    bm.Chemistry.ToLower() == model.Chemistry.ToLower() &&
-                    bm.CapacityKWh == model.CapacityKWh);
+                    bm.Brand.ToLower() == brand.ToLower() &&
+                    bm.Name.ToLower() == name.ToLower() &&
+                    (bm.Chemistry ?? string.Empty).ToLower() == (req.Chemistry ?? string.Empty).ToLower() &&
+                    bm.CapacityKWh == req.CapacityKWh);
 
             if (existing != null)
             {
@@ -149,9 +173,24 @@ namespace EVehicleManagementAPI.Controllers
                 });
             }
 
-            model.IsCustom = true;
-            model.IsApproved = false;
-            model.CreatedAt = DateTime.Now;
+            var model = new BatteryModel
+            {
+                Name = name,
+                Brand = brand,
+                Chemistry = req.Chemistry ?? string.Empty,
+                Voltage = req.Voltage,
+                CapacityKWh = req.CapacityKWh,
+                Amperage = req.Amperage,
+                Weight = req.Weight,
+                FormFactor = req.FormFactor ?? string.Empty,
+                Cycles = req.Cycles,
+                Description = req.Description ?? string.Empty,
+                CustomSpec = req.CustomSpec,
+                ImageUrl = req.ImageUrl,
+                IsCustom = true,
+                IsApproved = false,
+                CreatedAt = DateTime.Now
+            };
 
             _context.BatteryModels.Add(model);
             await _context.SaveChangesAsync();

@@ -2,6 +2,7 @@ using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace EVehicleManagementAPI.Controllers
 {
@@ -118,21 +119,46 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(new { imageUrl = model.ImageUrl });
         }
 
-        // POST: api/VehicleModel/custom
-        // Cho phép user submit model mới (IsCustom = true, IsApproved = false)
-        [HttpPost("custom")]
-        public async Task<IActionResult> CreateCustom([FromBody] VehicleModel model)
+        public class VehicleModelCreateRequest
         {
-            if (string.IsNullOrEmpty(model.Name) || string.IsNullOrEmpty(model.Brand))
-                return BadRequest("Name và Brand là bắt buộc.");
+            [Required]
+            public string Name { get; set; }
+            [Required]
+            public string Brand { get; set; }
+            public int? Year { get; set; }
+            public string? Type { get; set; }
+            public decimal? MotorPower { get; set; }
+            public string? BatteryType { get; set; }
+            public decimal? Voltage { get; set; }
+            public int? MaxSpeed { get; set; }
+            public int? Range { get; set; }
+            public decimal? Weight { get; set; }
+            public int? Seats { get; set; }
+            public string? Description { get; set; }
+            public string? CustomSpec { get; set; }
+            public string? ImageUrl { get; set; }
+        }
+
+        // POST: api/VehicleModel/custom
+        // Nhận body gọn (DTO) và trả về model đầy đủ có ImageUrl
+        [HttpPost("custom")]
+        public async Task<IActionResult> CreateCustom([FromBody] VehicleModelCreateRequest req)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var name = req.Name?.Trim();
+            var brand = req.Brand?.Trim();
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(brand))
+                return BadRequest(new { message = "Name và Brand là bắt buộc." });
 
             // Kiểm tra duplicate: cùng Brand, Name, Year, Type
             var existing = await _context.VehicleModels
                 .FirstOrDefaultAsync(vm =>
-                    vm.Brand.ToLower() == model.Brand.ToLower() &&
-                    vm.Name.ToLower() == model.Name.ToLower() &&
-                    vm.Year == model.Year &&
-                    vm.Type.ToLower() == model.Type.ToLower());
+                    vm.Brand.ToLower() == brand.ToLower() &&
+                    vm.Name.ToLower() == name.ToLower() &&
+                    vm.Year == req.Year &&
+                    (vm.Type ?? string.Empty).ToLower() == (req.Type ?? string.Empty).ToLower());
 
             if (existing != null)
             {
@@ -143,9 +169,26 @@ namespace EVehicleManagementAPI.Controllers
                 });
             }
 
-            model.IsCustom = true;
-            model.IsApproved = false;
-            model.CreatedAt = DateTime.Now;
+            var model = new VehicleModel
+            {
+                Name = name,
+                Brand = brand,
+                Year = req.Year,
+                Type = req.Type ?? string.Empty,
+                MotorPower = req.MotorPower,
+                BatteryType = req.BatteryType ?? string.Empty,
+                Voltage = req.Voltage,
+                MaxSpeed = req.MaxSpeed,
+                Range = req.Range,
+                Weight = req.Weight,
+                Seats = req.Seats,
+                Description = req.Description ?? string.Empty,
+                CustomSpec = req.CustomSpec,
+                ImageUrl = req.ImageUrl,
+                IsCustom = true,
+                IsApproved = false,
+                CreatedAt = DateTime.Now
+            };
 
             _context.VehicleModels.Add(model);
             await _context.SaveChangesAsync();
