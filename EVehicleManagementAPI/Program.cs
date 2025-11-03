@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using EVehicleManagementAPI.Models;
 using System.Text;
 using System.Security.Cryptography;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,28 @@ builder.Services.AddDbContext<EVehicleDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "EVehicleManagementAPI", Version = "v1" });
+
+    // Thêm cấu hình JWT
+    c.AddSecurityDefinition("Bearer", new()
+    {
+        Description = "Nhập token theo định dạng: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new()
+    {
+        {
+            new() { Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+            new List<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
