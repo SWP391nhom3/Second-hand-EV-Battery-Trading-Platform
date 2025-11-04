@@ -16,7 +16,7 @@ namespace EVehicleManagementAPI.Controllers
             _context = context;
         }
 
-        // ✅ Lấy tất cả bài đăng
+        // ✅ Lấy tất cả bài đăng - Sắp xếp theo PriorityLevel (gói càng cao càng ưu tiên)
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -25,11 +25,25 @@ namespace EVehicleManagementAPI.Controllers
                 .Include(p => p.Vehicle).ThenInclude(v => v.VehicleModel)
                 .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
                 .Include(p => p.Staff)
+                .Include(p => p.PostPackageSubs.Where(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now))
+                    .ThenInclude(ps => ps.PostPackage)
+                .Where(p => p.Status == "ACTIVE")
                 .ToListAsync();
-            return Ok(posts);
+
+            // Sắp xếp: Gói có PriorityLevel cao hơn lên trước, sau đó mới đến Featured, cuối cùng là CreatedAt
+            var sortedPosts = posts.OrderByDescending(p =>
+            {
+                var activeSub = p.PostPackageSubs.FirstOrDefault(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now);
+                return activeSub?.PostPackage?.PriorityLevel ?? 0;
+            })
+            .ThenByDescending(p => p.Featured)
+            .ThenByDescending(p => p.CreatedAt)
+            .ToList();
+
+            return Ok(sortedPosts);
         }
 
-        // ✅ Lấy bài đăng theo ID
+        // ✅ Lấy bài đăng theo ID - Bao gồm thông tin gói
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -39,6 +53,8 @@ namespace EVehicleManagementAPI.Controllers
                 .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
                 .Include(p => p.Staff)
                 .Include(p => p.PostRequests)
+                .Include(p => p.PostPackageSubs.Where(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now))
+                    .ThenInclude(ps => ps.PostPackage)
                 .FirstOrDefaultAsync(p => p.PostId == id);
 
             if (post == null) return NotFound();
@@ -196,11 +212,39 @@ namespace EVehicleManagementAPI.Controllers
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
 
-            // Load lại với model data để trả về
+            // ✅ Tự động link với gói active của member (nếu có)
+            var activePackageSub = await _context.PostPackageSubs
+                .Include(ps => ps.PostPackage)
+                .Where(ps => ps.MemberId == dto.MemberId 
+                    && ps.Status == "ACTIVE" 
+                    && ps.EndDate > DateTime.Now
+                    && ps.PostId == null) // Chưa được gán cho post nào
+                .OrderByDescending(ps => ps.PostPackage.PriorityLevel) // Ưu tiên gói cao nhất
+                .FirstOrDefaultAsync();
+
+            if (activePackageSub != null)
+            {
+                // Link gói với post này
+                activePackageSub.PostId = post.PostId;
+                
+                // Set expiry date cho post dựa trên gói
+                post.ExpiryDate = activePackageSub.EndDate;
+                
+                // Nếu gói có PriorityLevel >= 3 thì set Featured
+                if (activePackageSub.PostPackage.PriorityLevel >= 3)
+                {
+                    post.Featured = true;
+                }
+                
+                await _context.SaveChangesAsync();
+            }
+
+            // Load lại với model data và package info để trả về
             var createdPost = await _context.Posts
                 .Include(p => p.Member).ThenInclude(m => m.Account)
                 .Include(p => p.Vehicle).ThenInclude(v => v.VehicleModel)
                 .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
+                .Include(p => p.PostPackageSubs).ThenInclude(ps => ps.PostPackage)
                 .FirstOrDefaultAsync(p => p.PostId == post.PostId);
 
             return CreatedAtAction(nameof(GetById), new { id = post.PostId }, createdPost);
@@ -264,7 +308,7 @@ namespace EVehicleManagementAPI.Controllers
             return Ok();
         }
 
-        // ✅ Lấy bài đăng nổi bật
+        // ✅ Lấy bài đăng nổi bật - Sắp xếp theo PriorityLevel
         [HttpGet("featured")]
         public async Task<IActionResult> GetFeaturedPosts()
         {
@@ -272,22 +316,44 @@ namespace EVehicleManagementAPI.Controllers
                 .Include(p => p.Member)
                 .Include(p => p.Vehicle).ThenInclude(v => v.VehicleModel)
                 .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
+                .Include(p => p.PostPackageSubs.Where(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now))
+                    .ThenInclude(ps => ps.PostPackage)
                 .Where(p => p.Featured == true && p.Status == "ACTIVE")
-                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
-            return Ok(featuredPosts);
+
+            // Sắp xếp theo PriorityLevel (gói cao hơn lên trước)
+            var sortedPosts = featuredPosts.OrderByDescending(p =>
+            {
+                var activeSub = p.PostPackageSubs.FirstOrDefault(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now);
+                return activeSub?.PostPackage?.PriorityLevel ?? 0;
+            })
+            .ThenByDescending(p => p.CreatedAt)
+            .ToList();
+
+            return Ok(sortedPosts);
         }
 
-        // ✅ Lấy bài đăng giao dịch trực tiếp
+        // ✅ Lấy bài đăng giao dịch trực tiếp - Sắp xếp theo PriorityLevel
         [HttpGet("direct")]
         public async Task<IActionResult> GetDirectPosts()
         {
             var posts = await _context.Posts
                 .Include(p => p.Member)
+                .Include(p => p.PostPackageSubs.Where(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now))
+                    .ThenInclude(ps => ps.PostPackage)
                 .Where(p => p.TransactionType == "DIRECT" && p.Status == "ACTIVE")
-                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
-            return Ok(posts);
+
+            // Sắp xếp theo PriorityLevel (gói cao hơn lên trước)
+            var sortedPosts = posts.OrderByDescending(p =>
+            {
+                var activeSub = p.PostPackageSubs.FirstOrDefault(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now);
+                return activeSub?.PostPackage?.PriorityLevel ?? 0;
+            })
+            .ThenByDescending(p => p.CreatedAt)
+            .ToList();
+
+            return Ok(sortedPosts);
         }
 
         // ✅ Lấy bài đăng cần nhân viên hỗ trợ

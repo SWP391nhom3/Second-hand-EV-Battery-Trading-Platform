@@ -102,18 +102,23 @@ namespace EVehicleManagementAPI.Controllers
             var package = await _context.PostPackages.FindAsync(packageId);
             if (package == null) return NotFound("Package not found");
 
-            var post = await _context.Posts.FindAsync(request.PostId);
-            if (post == null) return NotFound("Post not found");
-
             var member = await _context.Members.FindAsync(request.MemberId);
             if (member == null) return NotFound("Member not found");
+
+            // ✅ PostId có thể null - cho phép mua gói trước khi đăng bài
+            Post? post = null;
+            if (request.PostId.HasValue && request.PostId.Value > 0)
+            {
+                post = await _context.Posts.FindAsync(request.PostId.Value);
+                if (post == null) return NotFound("Post not found");
+            }
 
             var startDate = DateTime.Now;
             var endDate = startDate.AddDays(package.DurationDay);
 
             var subscription = new PostPackageSub
             {
-                PostId = request.PostId,
+                PostId = request.PostId.HasValue && request.PostId.Value > 0 ? request.PostId.Value : null, // Cho phép null
                 PackageId = packageId,
                 MemberId = request.MemberId,
                 StartDate = startDate,
@@ -124,15 +129,27 @@ namespace EVehicleManagementAPI.Controllers
 
             _context.PostPackageSubs.Add(subscription);
 
-            // Update post to be featured if it's a high priority package
-            if (package.PriorityLevel >= 3)
+            // ✅ Nếu có post, update post với thông tin gói
+            if (post != null)
             {
-                post.Featured = true;
+                // Update post to be featured if it's a high priority package
+                if (package.PriorityLevel >= 3)
+                {
+                    post.Featured = true;
+                }
                 post.ExpiryDate = endDate;
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Subscription created successfully", subscription });
+            return Ok(new { 
+                message = "Subscription created successfully", 
+                subscription,
+                packageInfo = new { 
+                    name = package.Name, 
+                    priorityLevel = package.PriorityLevel,
+                    endDate = endDate
+                }
+            });
         }
 
         [HttpGet("statistics")]
@@ -166,7 +183,7 @@ namespace EVehicleManagementAPI.Controllers
 
     public class SubscribeToPackageRequest
     {
-        public int PostId { get; set; }
+        public int? PostId { get; set; } // ✅ Cho phép null để mua gói trước khi đăng bài
         public int MemberId { get; set; }
         public int PaymentId { get; set; }
     }
