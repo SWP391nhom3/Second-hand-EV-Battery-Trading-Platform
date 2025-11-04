@@ -7,8 +7,7 @@ namespace EVehicleManagementAPI.Models
         public int Id { get; set; }
         public int MemberId { get; set; }
         public int? VehicleModelId { get; set; }  // Foreign key to VehicleModel (optional)
-        public string Brand { get; set; }
-        public string Model { get; set; }
+        public string VIN { get; set; }
         public int ManufactureYear { get; set; }
         public int MileageKm { get; set; }
         public decimal BatteryCapacity { get; set; }

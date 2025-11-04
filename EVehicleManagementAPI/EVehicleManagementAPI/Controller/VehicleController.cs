@@ -44,8 +44,7 @@ namespace EVehicleManagementAPI.Controllers
             var existing = _context.Vehicles.Find(id);
             if (existing == null) return NotFound();
 
-            existing.Brand = v.Brand;
-            existing.Model = v.Model;
+            existing.VIN = v.VIN;
             existing.ManufactureYear = v.ManufactureYear;
             existing.MileageKm = v.MileageKm;
             existing.BatteryCapacity = v.BatteryCapacity;

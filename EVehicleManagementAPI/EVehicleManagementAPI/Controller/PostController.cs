@@ -115,8 +115,7 @@ namespace EVehicleManagementAPI.Controllers
                 {
                     MemberId = dto.MemberId,
                     VehicleModelId = dto.VehicleModelId.Value,
-                    Brand = vehicleModel.Brand,
-                    Model = vehicleModel.Name,
+                    VIN = "",
                     ManufactureYear = vehicleModel.Year ?? DateTime.Now.Year,
                     BatteryCapacity = vehicleModel.Voltage ?? 0,
                     Condition = dto.VehicleCondition ?? "Good",
@@ -134,8 +133,7 @@ namespace EVehicleManagementAPI.Controllers
                 var vehicle = new Vehicle
                 {
                     MemberId = dto.MemberId,
-                    Brand = dto.Vehicle.Brand,
-                    Model = dto.Vehicle.Model,
+                    VIN = dto.Vehicle.VIN,
                     ManufactureYear = dto.Vehicle.ManufactureYear,
                     MileageKm = dto.Vehicle.MileageKm,
                     BatteryCapacity = dto.Vehicle.BatteryCapacity,
@@ -169,7 +167,6 @@ namespace EVehicleManagementAPI.Controllers
                 {
                     MemberId = dto.MemberId,
                     BatteryModelId = dto.BatteryModelId.Value,
-                    Brand = batteryModel.Brand,
                     CapacityKWh = batteryModel.CapacityKWh ?? 0,
                     CycleCount = dto.BatteryCycleCount ?? 0,
                     ManufactureYear = DateTime.Now.Year,
@@ -187,7 +184,6 @@ namespace EVehicleManagementAPI.Controllers
                 var battery = new Battery
                 {
                     MemberId = dto.MemberId,
-                    Brand = dto.Battery.Brand,
                     CapacityKWh = dto.Battery.CapacityKWh,
                     CycleCount = dto.Battery.CycleCount,
                     ManufactureYear = dto.Battery.ManufactureYear,

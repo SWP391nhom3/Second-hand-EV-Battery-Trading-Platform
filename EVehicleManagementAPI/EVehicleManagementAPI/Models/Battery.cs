@@ -7,7 +7,6 @@ namespace EVehicleManagementAPI.Models
         public int BatteryId { get; set; }
         public int MemberId { get; set; }
         public int? BatteryModelId { get; set; }  // Foreign key to BatteryModel (optional)
-        public string Brand { get; set; }
         public decimal CapacityKWh { get; set; }
         public int CycleCount { get; set; }
         public int ManufactureYear { get; set; }

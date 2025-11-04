@@ -60,7 +60,6 @@ namespace EVehicleManagementAPI.Controllers
             var existing = await _context.Batteries.FindAsync(id);
             if (existing == null) return NotFound();
 
-            existing.Brand = battery.Brand;
             existing.CapacityKWh = battery.CapacityKWh;
             existing.CycleCount = battery.CycleCount;
             existing.ManufactureYear = battery.ManufactureYear;
@@ -83,12 +82,9 @@ namespace EVehicleManagementAPI.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchBatteries([FromQuery] string? brand = null, [FromQuery] decimal? minCapacity = null, [FromQuery] decimal? maxCapacity = null)
+        public async Task<IActionResult> SearchBatteries([FromQuery] decimal? minCapacity = null, [FromQuery] decimal? maxCapacity = null)
         {
             var query = _context.Batteries.AsQueryable();
-
-            if (!string.IsNullOrEmpty(brand))
-                query = query.Where(b => b.Brand.Contains(brand));
 
             if (minCapacity.HasValue)
                 query = query.Where(b => b.CapacityKWh >= minCapacity.Value);
