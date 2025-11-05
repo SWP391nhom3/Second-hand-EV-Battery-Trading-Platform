@@ -2,6 +2,7 @@ using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace EVehicleManagementAPI.Controllers
 {
@@ -46,9 +47,38 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(batteries);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Battery battery)
+        public class CreateBatteryRequest
         {
+            [Required]
+            public int MemberId { get; set; }
+            public int? BatteryModelId { get; set; }
+            [Required]
+            public decimal CapacityKWh { get; set; }
+            public int CycleCount { get; set; }
+            public int ManufactureYear { get; set; }
+            [Required]
+            public string Condition { get; set; }
+            [Required]
+            public string Description { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateBatteryRequest req)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var battery = new Battery
+            {
+                MemberId = req.MemberId,
+                BatteryModelId = req.BatteryModelId,
+                CapacityKWh = req.CapacityKWh,
+                CycleCount = req.CycleCount,
+                ManufactureYear = req.ManufactureYear,
+                Condition = req.Condition,
+                Description = req.Description
+            };
+
             _context.Batteries.Add(battery);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = battery.BatteryId }, battery);

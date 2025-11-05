@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace EVehicleManagementAPI.Models
 {
@@ -14,7 +15,8 @@ namespace EVehicleManagementAPI.Models
         public string Description { get; set; }
 
         // Navigation properties
-        public Member Member { get; set; }
+        [JsonIgnore]
+        public Member? Member { get; set; }
         public BatteryModel? BatteryModel { get; set; }  // Reference to BatteryModel
         public ICollection<Post> Posts { get; set; } = new List<Post>();
     }
