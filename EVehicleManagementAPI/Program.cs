@@ -5,6 +5,8 @@ using EVehicleManagementAPI.Models;
 using System.Text;
 using System.Security.Cryptography;
 using Microsoft.OpenApi.Models;
+using EVehicleManagementAPI.Options;
+using EVehicleManagementAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,10 @@ builder.Services.AddDbContext<EVehicleDbContext>(options =>
 );
 
 builder.Services.AddControllers();
+
+// PayOS configuration
+builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
+builder.Services.AddHttpClient<PayOsService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
