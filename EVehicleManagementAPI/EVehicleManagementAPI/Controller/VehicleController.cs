@@ -2,6 +2,7 @@
 using EVehicleManagementAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace EVehicleManagementAPI.Controllers
 {
@@ -30,9 +31,39 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(vehicle);
         }
 
-        [HttpPost]
-        public IActionResult Create(Vehicle v)
+        public class CreateVehicleRequest
         {
+            [Required]
+            public int MemberId { get; set; }
+            public int? VehicleModelId { get; set; }
+            public string VIN { get; set; }
+            public int ManufactureYear { get; set; }
+            public int MileageKm { get; set; }
+            public decimal BatteryCapacity { get; set; }
+            [Required]
+            public string Condition { get; set; }
+            [Required]
+            public string Description { get; set; }
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateVehicleRequest req)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var v = new Vehicle
+            {
+                MemberId = req.MemberId,
+                VehicleModelId = req.VehicleModelId,
+                VIN = req.VIN,
+                ManufactureYear = req.ManufactureYear,
+                MileageKm = req.MileageKm,
+                BatteryCapacity = req.BatteryCapacity,
+                Condition = req.Condition,
+                Description = req.Description
+            };
+
             _context.Vehicles.Add(v);
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetById), new { id = v.Id }, v);
