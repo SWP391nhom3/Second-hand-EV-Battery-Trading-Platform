@@ -43,5 +43,6 @@ namespace EVehicleManagementAPI.Models
 
         public ICollection<PostPackageSub> PostPackageSubs { get; set; } = new List<PostPackageSub>();
         public ICollection<PostRequest> PostRequests { get; set; } = new List<PostRequest>();
+
     }
 }

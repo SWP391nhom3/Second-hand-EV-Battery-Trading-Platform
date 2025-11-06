@@ -34,7 +34,7 @@ namespace EVehicleManagementAPI.Controllers
                 .Include(p => p.Staff)
                 .Include(p => p.PostPackageSubs.Where(ps => ps.Status == "ACTIVE" && ps.EndDate > DateTime.Now))
                     .ThenInclude(ps => ps.PostPackage)
-                .Where(p => p.Status == "ACTIVE")
+               .Where(p => p.Status == "ACTIVE" || p.Status == "APPROVED")
                 .ToListAsync();
 
             // Sắp xếp: Gói có PriorityLevel cao hơn lên trước, sau đó mới đến Featured, cuối cùng là CreatedAt
