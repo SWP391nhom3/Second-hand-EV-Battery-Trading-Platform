@@ -18,6 +18,7 @@ namespace EVehicleManagementAPI.Models
         public string Method { get; set; } // Banking, COD, ShopeePay, ...
         public string TransferContent { get; set; } // Noi dung chuyen khoan
         public string Status { get; set; } // Pending, Completed, Refunded, Failed
+        public string? CheckoutUrl { get; set; } // PayOS checkout URL (nếu có)
         public DateTime CreatedAt { get; set; }
 
         // --- Navigation properties ---

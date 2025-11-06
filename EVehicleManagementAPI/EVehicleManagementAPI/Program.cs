@@ -1,6 +1,7 @@
 ﻿using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Services;
 using EVehicleManagementAPI.Models;
+using EVehicleManagementAPI.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -47,6 +48,10 @@ builder.Services.AddScoped<IGoogleOAuthService, GoogleOAuthService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+// PayOS configuration
+builder.Services.Configure<PayOsOptions>(builder.Configuration.GetSection("PayOS"));
+builder.Services.AddHttpClient<PayOsService>();
 
 // Configure DbContext
 builder.Services.AddDbContext<EVehicleDbContext>(options =>

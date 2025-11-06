@@ -1,7 +1,10 @@
 ﻿using EVehicleManagementAPI.DBconnect;
 using EVehicleManagementAPI.Models;
+using EVehicleManagementAPI.Options;
+using EVehicleManagementAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace EVehicleManagementAPI.Controllers
 {
@@ -10,10 +13,14 @@ namespace EVehicleManagementAPI.Controllers
     public class PostController : ControllerBase
     {
         private readonly EVehicleDbContext _context;
+        private readonly PayOsService _payOsService;
+        private readonly PayOsOptions _payOsOptions;
 
-        public PostController(EVehicleDbContext context)
+        public PostController(EVehicleDbContext context, PayOsService payOsService, IOptions<PayOsOptions> payOsOptions)
         {
             _context = context;
+            _payOsService = payOsService;
+            _payOsOptions = payOsOptions.Value;
         }
 
         // ✅ Lấy tất cả bài đăng - Sắp xếp theo PriorityLevel (gói càng cao càng ưu tiên)
@@ -61,7 +68,7 @@ namespace EVehicleManagementAPI.Controllers
             return Ok(post);
         }
 
-        // ✅ Lấy bài đăng theo thành viên
+        // ✅ Lấy bài đăng theo thành viên (bao gồm payments và postPackageSubs)
         [HttpGet("member/{memberId}")]
         public async Task<IActionResult> GetByMemberId(int memberId)
         {
@@ -69,9 +76,52 @@ namespace EVehicleManagementAPI.Controllers
                 .Include(p => p.Vehicle).ThenInclude(v => v.VehicleModel)
                 .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
                 .Include(p => p.Staff)
+                .Include(p => p.PostPackageSubs)
+                    .ThenInclude(ps => ps.PostPackage)
+                .Include(p => p.PostPackageSubs)
+                    .ThenInclude(ps => ps.Payment)
                 .Where(p => p.MemberId == memberId)
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
             return Ok(posts);
+        }
+
+        // ✅ Lấy checkout URL cho một bài đăng (nếu đã được approve và có payment)
+        [HttpGet("{postId}/checkout-url")]
+        public async Task<IActionResult> GetCheckoutUrl(int postId)
+        {
+            var post = await _context.Posts
+                .Include(p => p.PostPackageSubs)
+                    .ThenInclude(ps => ps.Payment)
+                .Include(p => p.PostPackageSubs)
+                    .ThenInclude(ps => ps.PostPackage)
+                .FirstOrDefaultAsync(p => p.PostId == postId);
+
+            if (post == null) return NotFound("Không tìm thấy bài đăng.");
+
+            if (post.Status != "APPROVED")
+                return BadRequest("Bài đăng chưa được duyệt.");
+
+            // Tìm PostPackageSub có Payment với checkoutUrl
+            var pendingSub = post.PostPackageSubs
+                .FirstOrDefault(ps => ps.Status == "PENDING" && ps.Payment?.CheckoutUrl != null);
+
+            if (pendingSub?.Payment?.CheckoutUrl == null)
+                return NotFound("Chưa có link thanh toán. Vui lòng liên hệ admin.");
+
+            return Ok(new
+            {
+                checkoutUrl = pendingSub.Payment.CheckoutUrl,
+                paymentId = pendingSub.Payment.Id,
+                amount = pendingSub.Payment.Amount,
+                transferContent = pendingSub.Payment.TransferContent,
+                package = pendingSub.PostPackage != null ? new
+                {
+                    packageId = pendingSub.PostPackage.PackageId,
+                    name = pendingSub.PostPackage.Name,
+                    price = pendingSub.PostPackage.Price
+                } : null
+            });
         }
 
         // ✅ Tạo bài đăng
@@ -95,13 +145,14 @@ namespace EVehicleManagementAPI.Controllers
             if (post.PostType?.ToLower() == "e-vehicle" || post.PostType?.ToLower() == "xe điện")
             {
                 post.TransactionType = "STAFF_ASSISTED";
-                post.Status = "PENDING_ASSIGN"; // chờ admin gán nhân viên
             }
             else
             {
                 post.TransactionType = "DIRECT";
-                post.Status = "ACTIVE";
             }
+            
+            // ✅ Tất cả bài đăng mới phải chờ admin duyệt trước
+            post.Status = "PENDING";
 
             // ✅ Xử lý Vehicle: Ưu tiên VehicleModelId > Vehicle object > VehicleId trực tiếp
             if (dto.VehicleModelId.HasValue)
@@ -364,6 +415,173 @@ namespace EVehicleManagementAPI.Controllers
                 .ToListAsync();
             return Ok(posts);
         }
+
+        // ✅ Admin: Lấy tất cả bài đăng (có filter theo status)
+        [HttpGet("admin/all")]
+        public async Task<IActionResult> GetAllForAdmin([FromQuery] string? status = null)
+        {
+            var query = _context.Posts
+                .Include(p => p.Member).ThenInclude(m => m.Account)
+                .Include(p => p.Vehicle).ThenInclude(v => v.VehicleModel)
+                .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
+                .Include(p => p.Staff)
+                .Include(p => p.PostPackageSubs).ThenInclude(ps => ps.PostPackage)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(p => p.Status == status);
+            }
+
+            var posts = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            
+            return Ok(posts);
+        }
+
+        // ✅ Admin: Lấy bài đăng chờ duyệt
+        [HttpGet("admin/pending")]
+        public async Task<IActionResult> GetPendingForApproval()
+        {
+            var posts = await _context.Posts
+                .Include(p => p.Member).ThenInclude(m => m.Account)
+                .Include(p => p.Vehicle).ThenInclude(v => v.VehicleModel)
+                .Include(p => p.Battery).ThenInclude(b => b.BatteryModel)
+                .Where(p => p.Status == "PENDING")
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            return Ok(posts);
+        }
+
+        // ✅ Admin: Duyệt bài đăng và tự động tạo checkout PayOS
+        [HttpPatch("admin/{id}/approve")]
+        public async Task<IActionResult> ApprovePost(int id, [FromBody] ApprovePostRequest? request = null)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null) return NotFound("Không tìm thấy bài đăng.");
+            
+            if (post.Status != "PENDING")
+                return BadRequest("Bài đăng này không ở trạng thái chờ duyệt.");
+
+            post.Status = "APPROVED";
+            post.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            // ✅ Nếu có packageId, tự động tạo checkout PayOS
+            if (request?.PackageId.HasValue == true)
+            {
+                var package = await _context.PostPackages.FirstOrDefaultAsync(p => p.PackageId == request.PackageId.Value);
+                if (package != null)
+                {
+                    var packageCode = package.PriorityLevel switch
+                    {
+                        1 => "BASIC",
+                        2 => "STANDARD",
+                        3 => "PREMIUM",
+                        _ => "BASIC"
+                    };
+
+                    var transferContent = _payOsService.GenerateTransferContent(post.PostId, packageCode);
+
+                    // Tạo Payment entity (tạm thời chưa có checkoutUrl, sẽ update sau)
+                    var payment = new Payment
+                    {
+                        BuyerId = post.MemberId,
+                        SellerId = post.MemberId,
+                        Amount = package.Price,
+                        Method = "PayOS",
+                        TransferContent = transferContent,
+                        Status = "Pending",
+                        CheckoutUrl = null, // Sẽ update sau khi tạo PayOS order
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Payments.Add(payment);
+                    await _context.SaveChangesAsync();
+
+                    // Tạo PostPackageSub
+                    var sub = new PostPackageSub
+                    {
+                        PostId = post.PostId,
+                        PackageId = package.PackageId,
+                        MemberId = post.MemberId,
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now,
+                        PaymentId = payment.Id,
+                        Status = "PENDING"
+                    };
+                    _context.PostPackageSubs.Add(sub);
+                    await _context.SaveChangesAsync();
+
+                    var orderCode = $"POST{post.PostId}-PKG{package.PackageId}-PAY{payment.Id}";
+                    var amountVnd = (long)decimal.Round(package.Price, 0, MidpointRounding.AwayFromZero);
+
+                    try
+                    {
+                        var (checkoutUrl, actualOrderCode) = await _payOsService.CreateOrderAsync(
+                            amount: amountVnd,
+                            description: transferContent,
+                            orderCode: orderCode,
+                            returnUrl: _payOsOptions.ReturnUrl,
+                            cancelUrl: _payOsOptions.CancelUrl);
+
+                        // ✅ Lưu checkoutUrl vào Payment
+                        payment.CheckoutUrl = checkoutUrl;
+                        await _context.SaveChangesAsync();
+
+                        return Ok(new
+                        {
+                            post,
+                            checkoutUrl,
+                            orderCode = actualOrderCode,
+                            transferContent,
+                            package = new { package.PackageId, package.Name, package.Price }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        // Nếu PayOS lỗi, vẫn trả về post đã approve nhưng không có checkoutUrl
+                        return Ok(new
+                        {
+                            post,
+                            checkoutUrl = (string?)null,
+                            error = $"Không thể tạo checkout: {ex.Message}",
+                            package = new { package.PackageId, package.Name, package.Price }
+                        });
+                    }
+                }
+            }
+
+            return Ok(new { post, checkoutUrl = (string?)null });
+        }
+
+        // ✅ Admin: Từ chối bài đăng (với lý do)
+        [HttpPatch("admin/{id}/reject")]
+        public async Task<IActionResult> RejectPost(int id, [FromBody] RejectPostRequest request)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null) return NotFound("Không tìm thấy bài đăng.");
+            
+            if (post.Status != "PENDING")
+                return BadRequest("Bài đăng này không ở trạng thái chờ duyệt.");
+
+            post.Status = "REJECTED";
+            post.Description = $"{post.Description}\n\n[Lý do từ chối: {request.Reason}]";
+            post.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            return Ok(post);
+        }
+    }
+
+    public class RejectPostRequest
+    {
+        public string Reason { get; set; } = string.Empty;
+    }
+
+    public class ApprovePostRequest
+    {
+        public int? PackageId { get; set; } // Gói đăng bài user đã chọn
     }
 
     // DTO classes
