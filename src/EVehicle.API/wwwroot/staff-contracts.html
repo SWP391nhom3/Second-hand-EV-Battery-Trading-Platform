@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Soạn thảo Hợp đồng (Staff)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #fa709a;
+            padding-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 200px;
+            font-family: monospace;
+        }
+
+        .btn-submit {
+            background: #fa709a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #f8578a;
+        }
+
+        .btn-close {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .btn-close:hover {
+            background: #5a6268;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-DRAFT {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-PENDING_SIGNATURE {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-SIGNED {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #138496;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group-modal {
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .form-actions {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .template-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .template-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-item:hover {
+            border-color: #fa709a;
+            background: #fff5f7;
+        }
+
+        .template-item.selected {
+            border-color: #fa709a;
+            background: #fff5f7;
+        }
+
+        .template-item h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .template-item p {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>📄 Soạn thảo Hợp đồng</h1>
+                <p>UC43: Staff soạn thảo hợp đồng từ mẫu</p>
+            </div>
+            <div class="header-actions">
+                <a href="/staff-dashboard.html" class="btn btn-primary">← Dashboard</a>
+                <button class="btn btn-primary" onclick="logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alert" class="alert"></div>
+
+        <div class="card">
+            <h2>Tạo Hợp đồng mới (UC43)</h2>
+            <form id="createContractForm" onsubmit="handleCreateContract(event)">
+                <div class="form-group">
+                    <label>Order ID (nếu có)</label>
+                    <input type="text" id="contractOrderId" placeholder="Để trống nếu không có Order">
+                </div>
+                <div class="form-group">
+                    <label>Lead ID (nếu có)</label>
+                    <input type="text" id="contractLeadId" placeholder="Để trống nếu không có Lead">
+                </div>
+                <div class="form-group">
+                    <label>Category ID (để lọc mẫu hợp đồng)</label>
+                    <input type="number" id="contractCategoryId" placeholder="Nhập Category ID (optional)">
+                </div>
+                <div class="form-group">
+                    <label>Mẫu hợp đồng *</label>
+                    <div id="templatesContainer">
+                        <button type="button" class="btn-submit" onclick="loadTemplates()">Tải danh sách mẫu</button>
+                    </div>
+                    <select id="contractTemplateId" required style="margin-top: 10px;">
+                        <option value="">-- Chọn mẫu hợp đồng --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nội dung hợp đồng (để trống để sử dụng mẫu, hoặc chỉnh sửa)</label>
+                    <textarea id="contractContent" placeholder="Nội dung hợp đồng sẽ được tự động điền từ mẫu..."></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Tạo hợp đồng</button>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <h2 style="margin-bottom: 20px;">Hợp đồng đã tạo</h2>
+            <div id="loading" class="loading">Đang tải...</div>
+            <div id="contractsList" style="display: none;">
+                <p style="color: #666; margin-bottom: 20px;">Sử dụng API GET /api/contracts/{id} để xem chi tiết hợp đồng</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết Contract -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết Hợp đồng</h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div id="contractDetailContent" style="padding: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+        let templates = [];
+
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function loadTemplates() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const categoryId = document.getElementById('contractCategoryId').value;
+
+            try {
+                const url = categoryId 
+                    ? `${API_BASE_URL}/contracts/templates?categoryId=${categoryId}`
+                    : `${API_BASE_URL}/contracts/templates`;
+
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tải danh sách mẫu');
+                }
+
+                templates = data.data || [];
+                displayTemplates(templates);
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function displayTemplates(templates) {
+            const select = document.getElementById('contractTemplateId');
+            select.innerHTML = '<option value="">-- Chọn mẫu hợp đồng --</option>';
+
+            templates.forEach(template => {
+                const option = document.createElement('option');
+                option.value = template.templateId;
+                option.textContent = `${template.templateName}${template.categoryName ? ' - ' + template.categoryName : ''}`;
+                select.appendChild(option);
+            });
+
+            // Auto-load content when template is selected
+            select.addEventListener('change', function() {
+                const selectedTemplate = templates.find(t => t.templateId == this.value);
+                if (selectedTemplate) {
+                    document.getElementById('contractContent').value = selectedTemplate.templateContent;
+                }
+            });
+        }
+
+        async function handleCreateContract(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const orderId = document.getElementById('contractOrderId').value;
+            const leadId = document.getElementById('contractLeadId').value;
+            const templateId = parseInt(document.getElementById('contractTemplateId').value);
+            const content = document.getElementById('contractContent').value;
+
+            if (!orderId && !leadId) {
+                showAlert('Phải có Order ID hoặc Lead ID', false);
+                return;
+            }
+
+            try {
+                const requestData = {
+                    contractTemplateId: templateId,
+                    contractContent: content || null
+                };
+
+                if (orderId) {
+                    requestData.orderId = orderId;
+                }
+                if (leadId) {
+                    requestData.leadId = leadId;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/contracts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tạo hợp đồng');
+                }
+
+                showAlert('Tạo hợp đồng thành công!', true);
+                document.getElementById('createContractForm').reset();
+                
+                // Show contract details
+                if (data.data) {
+                    viewContractDetail(data.data.contractId);
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        async function viewContractDetail(contractId) {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/contracts/${contractId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tải chi tiết hợp đồng');
+                }
+
+                const contract = data.data;
+                displayContractDetail(contract);
+                document.getElementById('detailModal').style.display = 'block';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function displayContractDetail(contract) {
+            const content = document.getElementById('contractDetailContent');
+            content.innerHTML = `
+                <div class="form-group-modal">
+                    <label>Contract ID</label>
+                    <div>${contract.contractId}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Mẫu hợp đồng</label>
+                    <div>${contract.templateName || 'N/A'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Trạng thái</label>
+                    <div><span class="status-badge status-${contract.status}">${getStatusText(contract.status)}</span></div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Người mua đã ký</label>
+                    <div>${contract.isBuyerSigned ? '✓ Đã ký' : '✗ Chưa ký'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Người bán đã ký</label>
+                    <div>${contract.isSellerSigned ? '✓ Đã ký' : '✗ Chưa ký'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Nội dung hợp đồng</label>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; max-height: 300px; overflow-y: auto; white-space: pre-wrap;">${contract.contractContent || 'N/A'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Ngày tạo</label>
+                    <div>${formatDate(contract.createdAt)}</div>
+                </div>
+                ${contract.contractPdfUrl ? `
+                    <div class="form-group-modal">
+                        <label>PDF Hợp đồng</label>
+                        <div><a href="${contract.contractPdfUrl}" target="_blank" class="btn-submit" style="text-decoration: none; display: inline-block;">Tải xuống PDF</a></div>
+                    </div>
+                ` : ''}
+                ${contract.status === 'PENDING_SIGNATURE' || contract.status === 'DRAFT' ? `
+                    <div class="form-actions">
+                        <a href="/contract-sign.html?contractId=${contract.contractId}" class="btn-submit" style="text-decoration: none; display: inline-block;">Ký hợp đồng (UC29)</a>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'DRAFT': 'Nháp',
+                'PENDING_SIGNATURE': 'Chờ ký',
+                'SIGNED': 'Đã ký'
+            };
+            return statusMap[status] || status;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const detailModal = document.getElementById('detailModal');
+            if (event.target === detailModal) {
+                closeDetailModal();
+            }
+        }
+
+        window.onload = function() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+            } else {
+                loadTemplates();
+            }
+        };
+    </script>
+</body>
+</html>
+

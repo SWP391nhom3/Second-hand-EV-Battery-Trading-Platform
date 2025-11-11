@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Test Đấu giá</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .step ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .step ol li {
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .post-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .post-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .post-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .post-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .post-card .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .auction-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔨 Test Tính năng Đấu giá (UC21)</h1>
+            <p>Hướng dẫn test đấu giá từ member khác</p>
+        </div>
+
+        <!-- Step 1: Tạo bài đăng đấu giá -->
+        <div class="test-section">
+            <h2>Bước 1: Tạo bài đăng đấu giá (Member 1 - Người bán)</h2>
+            <div class="step">
+                <h3>📝 Yêu cầu:</h3>
+                <ol>
+                    <li>Đăng nhập với tài khoản Member 1 (người bán)</li>
+                    <li>Truy cập <a href="/test-ui.html" target="_blank">/test-ui.html</a></li>
+                    <li>Vào tab "Tạo Bài đăng"</li>
+                    <li>Điền thông tin bài đăng</li>
+                    <li><strong>Bật checkbox "Bật chế độ đấu giá"</strong></li>
+                    <li>Nhập:
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>Giá khởi điểm: VD: 10000000 VNĐ</li>
+                            <li>Giá mua ngay (tùy chọn): VD: 20000000 VNĐ</li>
+                            <li>Thời gian kết thúc: Chọn thời gian trong tương lai (VD: 1 ngày sau)</li>
+                        </ul>
+                    </li>
+                    <li>Upload ảnh và submit</li>
+                    <li>Chờ Admin duyệt bài đăng</li>
+                </ol>
+            </div>
+            <div class="alert alert-info">
+                <strong>💡 Lưu ý:</strong> Sau khi Admin duyệt, bài đăng sẽ xuất hiện trong danh sách với badge "🔨 Đang đấu giá"
+            </div>
+        </div>
+
+        <!-- Step 2: Tìm bài đăng đấu giá -->
+        <div class="test-section">
+            <h2>Bước 2: Tìm bài đăng đấu giá (Member 2 - Người mua)</h2>
+            <div class="step">
+                <h3>🔍 Cách tìm:</h3>
+                <ol>
+                    <li>Đăng nhập với tài khoản Member 2 (người mua) - <strong>KHÁC với Member 1</strong></li>
+                    <li>Truy cập <a href="/posts.html" target="_blank">/posts.html</a></li>
+                    <li>Trong filter, chọn "Chỉ đấu giá" = "Chỉ đấu giá"</li>
+                    <li>Click "Tìm kiếm"</li>
+                    <li>Click vào bài đăng có badge "🔨 Đang đấu giá"</li>
+                </ol>
+            </div>
+            <div class="alert alert-warning">
+                <strong>⚠️ Quan trọng:</strong> Phải đăng nhập với tài khoản KHÁC với người bán. Người bán không thể đấu giá bài đăng của chính mình.
+            </div>
+        </div>
+
+        <!-- Step 3: Đặt giá đấu -->
+        <div class="test-section">
+            <h2>Bước 3: Đặt giá đấu (Member 2)</h2>
+            <div class="step">
+                <h3>💰 Quy trình đấu giá:</h3>
+                <ol>
+                    <li>Trong trang chi tiết bài đăng, scroll xuống phần "🔨 Đấu giá"</li>
+                    <li>Xem thông tin:
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>Giá khởi điểm</li>
+                            <li>Giá mua ngay (nếu có)</li>
+                            <li>Thời gian kết thúc và countdown</li>
+                            <li>Giá cao nhất hiện tại</li>
+                            <li>Tổng số lượt đấu</li>
+                        </ul>
+                    </li>
+                    <li>Nhập giá đấu (phải lớn hơn giá cao nhất hiện tại)</li>
+                    <li>Click "Đặt giá đấu"</li>
+                    <li>Kiểm tra:
+                        <ul style="margin-left: 20px; margin-top: 5px;">
+                            <li>Thông báo thành công</li>
+                            <li>Danh sách đấu giá được cập nhật</li>
+                            <li>Giá cao nhất được cập nhật</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+            <div class="alert alert-info">
+                <strong>📊 Test cases:</strong>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>✅ Đặt giá cao hơn giá hiện tại → Thành công</li>
+                    <li>❌ Đặt giá thấp hơn hoặc bằng giá hiện tại → Lỗi validation</li>
+                    <li>❌ Đặt giá sau khi hết thời gian → Lỗi "Thời gian đấu giá đã kết thúc"</li>
+                    <li>❌ Người bán đấu giá bài đăng của mình → Lỗi "Bạn không thể đấu giá bài đăng của chính mình"</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step 4: Test với nhiều member -->
+        <div class="test-section">
+            <h2>Bước 4: Test với nhiều Member đấu giá</h2>
+            <div class="step">
+                <h3>👥 Scenario:</h3>
+                <ol>
+                    <li>Member 2 đặt giá: 11,000,000 VNĐ</li>
+                    <li>Member 3 đặt giá: 12,000,000 VNĐ (vượt Member 2)</li>
+                    <li>Member 2 nhận notification "Bạn đã bị vượt giá"</li>
+                    <li>Member 2 đặt giá mới: 13,000,000 VNĐ</li>
+                    <li>Kiểm tra lịch sử đấu giá hiển thị đúng thứ tự</li>
+                    <li>Kiểm tra giá cao nhất được cập nhật</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="test-section">
+            <h2>🔗 Quick Links</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <a href="/posts.html" class="btn btn-primary" target="_blank">📋 Danh sách Bài đăng</a>
+                <a href="/test-ui.html" class="btn btn-success" target="_blank">🧪 Test UI (Tạo bài đăng)</a>
+                <a href="/login.html" class="btn btn-info" target="_blank">🔐 Đăng nhập</a>
+            </div>
+        </div>
+
+        <!-- Test Posts List -->
+        <div class="test-section">
+            <h2>📋 Danh sách Bài đăng Đấu giá</h2>
+            <div id="auctionPosts" class="post-list">
+                <div class="loading">Đang tải...</div>
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="test-section">
+            <h2>🔌 API Endpoints để Test</h2>
+            <div class="code-block">
+                <strong>1. Tạo bài đăng đấu giá:</strong><br>
+                POST /api/posts<br>
+                Body (FormData): auctionEnabled=true, startingBid=10000000, auctionEndTime=2025-11-10T12:00:00Z<br><br>
+                
+                <strong>2. Xem danh sách bài đăng đấu giá:</strong><br>
+                GET /api/posts/search?auctionOnly=true<br><br>
+                
+                <strong>3. Xem chi tiết bài đăng:</strong><br>
+                GET /api/posts/{postId}<br><br>
+                
+                <strong>4. Đặt giá đấu:</strong><br>
+                POST /api/bids<br>
+                Body: { "postId": "...", "bidAmount": 11000000 }<br><br>
+                
+                <strong>5. Xem lịch sử đấu giá:</strong><br>
+                GET /api/bids/post/{postId}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+
+        // Load auction posts on page load
+        window.onload = function() {
+            loadAuctionPosts();
+        };
+
+        async function loadAuctionPosts() {
+            try {
+                const params = new URLSearchParams({
+                    pageNumber: 1,
+                    pageSize: 6,
+                    auctionOnly: 'true',
+                    sortBy: 'bumpedAt',
+                    sortDirection: 'desc'
+                });
+
+                const response = await fetch(`${API_BASE_URL}/posts/search?${params}`);
+                const data = await response.json();
+
+                if (response.ok && data.success && data.data && data.data.length > 0) {
+                    displayAuctionPosts(data.data);
+                } else {
+                    document.getElementById('auctionPosts').innerHTML = 
+                        '<div class="alert alert-info">Chưa có bài đăng đấu giá nào. Hãy tạo bài đăng đấu giá trước.</div>';
+                }
+            } catch (error) {
+                document.getElementById('auctionPosts').innerHTML = 
+                    `<div class="alert alert-warning">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        function displayAuctionPosts(posts) {
+            const container = document.getElementById('auctionPosts');
+            let html = '';
+
+            posts.forEach(post => {
+                const price = formatCurrency(post.price);
+                const startingBid = post.startingBid || post.StartingBid;
+                const endTime = post.auctionEndTime || post.AuctionEndTime;
+                
+                html += `
+                    <div class="post-card" onclick="viewPost('${post.postId}')">
+                        <h4>${escapeHtml(post.title)}</h4>
+                        <div class="price">${price} VNĐ</div>
+                        ${startingBid ? `<div style="color: #666; font-size: 14px;">Giá khởi điểm: ${formatCurrency(startingBid)} VNĐ</div>` : ''}
+                        ${endTime ? `<div style="color: #999; font-size: 12px; margin-top: 5px;">Kết thúc: ${formatDateTime(endTime)}</div>` : ''}
+                        <span class="auction-badge">🔨 Đang đấu giá</span>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); viewPost('${post.postId}')">
+                                Xem chi tiết
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function viewPost(postId) {
+            window.open(`/post-detail.html?id=${postId}`, '_blank');
+        }
+
+        function formatCurrency(amount) {
+            if (!amount) return '0';
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
+

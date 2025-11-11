@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Quản lý Leads (Staff)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-filter {
+            background: #f5576c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-filter:hover {
+            background: #e0455a;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 14px;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-NEW {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-ASSIGNED {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-CONTACTED {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-SCHEDULED {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-SUCCESSFUL {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-FAILED {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .btn-create-appointment {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-create-appointment:hover {
+            background: #e0455a;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f8f9fa;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .detail-group {
+            margin-bottom: 15px;
+        }
+
+        .detail-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .detail-group .value {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group-modal {
+            margin-bottom: 20px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group-modal input,
+        .form-group-modal textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group-modal textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-submit {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-submit:hover {
+            background: #218838;
+        }
+
+        .btn-close {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-close:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>📋 Quản lý Leads</h1>
+                <p>UC40: Xem danh sách Lead được gán</p>
+            </div>
+            <div class="header-actions">
+                <a href="/staff-dashboard.html" class="btn btn-primary">← Dashboard</a>
+                <button class="btn btn-primary" onclick="logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alert" class="alert"></div>
+
+        <div class="filters">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <select id="filterStatus">
+                        <option value="">Tất cả</option>
+                        <option value="ASSIGNED" selected>Đã gán (Mới được gán)</option>
+                        <option value="CONTACTED">Đã liên hệ</option>
+                        <option value="SCHEDULED">Đã lên lịch</option>
+                        <option value="SUCCESSFUL">Thành công</option>
+                        <option value="FAILED">Thất bại</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Loại Lead</label>
+                    <select id="filterLeadType">
+                        <option value="">Tất cả</option>
+                        <option value="SCHEDULE_VIEW">Đặt lịch xem</option>
+                        <option value="AUCTION_WINNER">Thắng đấu giá</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sắp xếp theo</label>
+                    <select id="sortBy">
+                        <option value="CreatedAt">Ngày tạo</option>
+                        <option value="AssignedAt">Ngày gán</option>
+                        <option value="Status">Trạng thái</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Thứ tự</label>
+                    <select id="sortOrder">
+                        <option value="DESC">Mới nhất</option>
+                        <option value="ASC">Cũ nhất</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-filter" onclick="loadLeads()">Lọc</button>
+        </div>
+
+        <div class="table-container">
+            <div id="loading" class="loading">Đang tải...</div>
+            <table id="leadsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bài đăng</th>
+                        <th>Người mua</th>
+                        <th>Loại</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button onclick="changePage(-1)" id="btnPrev">← Trước</button>
+            <span class="page-info" id="pageInfo">Trang 1 / 1</span>
+            <button onclick="changePage(1)" id="btnNext">Sau →</button>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết Lead -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết Lead</h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div id="leadDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal tạo Appointment -->
+    <div id="createAppointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tạo Lịch hẹn (UC41)</h2>
+                <span class="close" onclick="closeCreateAppointmentModal()">&times;</span>
+            </div>
+            <form id="createAppointmentForm" onsubmit="handleCreateAppointment(event)">
+                <div class="form-group-modal">
+                    <label>Lead ID *</label>
+                    <input type="text" id="createAppointmentLeadId" required readonly>
+                </div>
+                <div class="form-group-modal">
+                    <label>Thời gian bắt đầu *</label>
+                    <input type="datetime-local" id="createAppointmentStartTime" required>
+                </div>
+                <div class="form-group-modal">
+                    <label>Thời gian kết thúc</label>
+                    <input type="datetime-local" id="createAppointmentEndTime">
+                </div>
+                <div class="form-group-modal">
+                    <label>Địa điểm *</label>
+                    <input type="text" id="createAppointmentLocation" required>
+                </div>
+                <div class="form-group-modal">
+                    <label>Ghi chú</label>
+                    <textarea id="createAppointmentNotes"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-close" onclick="closeCreateAppointmentModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Tạo lịch hẹn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal cập nhật trạng thái Lead (UC44) -->
+    <div id="updateStatusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cập nhật Trạng thái Lead (UC44)</h2>
+                <span class="close" onclick="closeUpdateStatusModal()">&times;</span>
+            </div>
+            <form id="updateStatusForm" onsubmit="handleUpdateStatus(event)">
+                <div class="form-group-modal">
+                    <label>Lead ID *</label>
+                    <input type="text" id="updateStatusLeadId" required readonly>
+                </div>
+                <div class="form-group-modal">
+                    <label>Trạng thái mới *</label>
+                    <select id="updateStatusStatus" required>
+                        <option value="CONTACTED">CONTACTED - Đã liên hệ</option>
+                        <option value="SCHEDULED">SCHEDULED - Đã tạo lịch hẹn</option>
+                        <option value="SUCCESSFUL">SUCCESSFUL - Giao dịch thành công</option>
+                        <option value="FAILED">FAILED - Giao dịch thất bại</option>
+                    </select>
+                </div>
+                <div class="form-group-modal">
+                    <label>Ghi chú</label>
+                    <textarea id="updateStatusNotes" rows="4" placeholder="Nhập ghi chú về Lead..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-close" onclick="closeUpdateStatusModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentLeadId = null;
+
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function loadLeads(page = 1) {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            currentPage = page;
+            // Mặc định filter ASSIGNED nếu chưa chọn (vì Staff chỉ thấy Leads được gán)
+            let status = document.getElementById('filterStatus').value;
+            if (!status) {
+                // Nếu không chọn status, vẫn hiển thị tất cả (bao gồm ASSIGNED, CONTACTED, etc.)
+                // Nhưng API sẽ tự động filter chỉ những Lead có staffId = current user
+            }
+            const leadType = document.getElementById('filterLeadType').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('leadsTable').style.display = 'none';
+                document.getElementById('pagination').style.display = 'none';
+
+                const params = new URLSearchParams({
+                    pageNumber: page.toString(),
+                    pageSize: '10',
+                    sortBy: sortBy,
+                    sortOrder: sortOrder
+                });
+
+                if (status) params.append('status', status);
+                if (leadType) params.append('leadType', leadType);
+
+                const response = await fetch(`${API_BASE_URL}/leads/staff?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('jwt_token');
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                    throw new Error('Không thể tải danh sách Leads');
+                }
+
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Lỗi khi tải danh sách Leads');
+                }
+
+                displayLeads(data.data.data || []);
+                updatePagination(data.data);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('leadsTable').style.display = 'table';
+                document.getElementById('pagination').style.display = 'flex';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayLeads(leads) {
+            const tbody = document.getElementById('leadsTableBody');
+            tbody.innerHTML = '';
+
+            if (leads.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #666;">Không có Lead nào</td></tr>';
+                return;
+            }
+
+            leads.forEach(lead => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${lead.leadId.substring(0, 8)}...</td>
+                    <td>${lead.postTitle || 'N/A'}</td>
+                    <td>${lead.buyerName || lead.buyerEmail || 'N/A'}</td>
+                    <td>${lead.leadType === 'SCHEDULE_VIEW' ? 'Đặt lịch xem' : 'Thắng đấu giá'}</td>
+                    <td><span class="status-badge status-${lead.status}">${getStatusText(lead.status)}</span></td>
+                    <td>${formatDate(lead.createdAt)}</td>
+                    <td>
+                        <button class="btn-action btn-view" onclick="viewLeadDetail('${lead.leadId}')">Xem</button>
+                        ${lead.status === 'ASSIGNED' || lead.status === 'CONTACTED' ? 
+                            `<button class="btn-action btn-create-appointment" onclick="createAppointment('${lead.leadId}')">Tạo lịch hẹn</button>` : ''}
+                        <button class="btn-action" style="background: #28a745; color: white;" onclick="openUpdateStatusModal('${lead.leadId}', '${lead.status}')">Cập nhật trạng thái</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'ASSIGNED': 'Đã gán (Mới)',
+                'CONTACTED': 'Đã liên hệ',
+                'SCHEDULED': 'Đã lên lịch',
+                'SUCCESSFUL': 'Thành công',
+                'FAILED': 'Thất bại'
+            };
+            return statusMap[status] || status;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        function updatePagination(data) {
+            totalPages = data.totalPages || 1;
+            currentPage = data.pageNumber || 1;
+
+            document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
+            document.getElementById('btnPrev').disabled = currentPage <= 1;
+            document.getElementById('btnNext').disabled = currentPage >= totalPages;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadLeads(newPage);
+            }
+        }
+
+        async function viewLeadDetail(leadId) {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/leads/${leadId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải chi tiết Lead');
+                }
+
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Lỗi khi tải chi tiết Lead');
+                }
+
+                const lead = data.data;
+                displayLeadDetail(lead);
+                document.getElementById('detailModal').style.display = 'block';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function displayLeadDetail(lead) {
+            const content = document.getElementById('leadDetailContent');
+            content.innerHTML = `
+                <div class="detail-group">
+                    <label>ID Lead</label>
+                    <div class="value">${lead.leadId}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Bài đăng</label>
+                    <div class="value">${lead.postTitle || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Người mua</label>
+                    <div class="value">${lead.buyerName || lead.buyerEmail || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Email người mua</label>
+                    <div class="value">${lead.buyerEmail || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Loại Lead</label>
+                    <div class="value">${lead.leadType === 'SCHEDULE_VIEW' ? 'Đặt lịch xem' : 'Thắng đấu giá'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Trạng thái</label>
+                    <div class="value"><span class="status-badge status-${lead.status}">${getStatusText(lead.status)}</span></div>
+                </div>
+                <div class="detail-group">
+                    <label>Giá cuối cùng</label>
+                    <div class="value">${lead.finalPrice ? formatCurrency(lead.finalPrice) : 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Ngày tạo</label>
+                    <div class="value">${formatDate(lead.createdAt)}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Ngày gán</label>
+                    <div class="value">${lead.assignedAt ? formatDate(lead.assignedAt) : 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Ghi chú</label>
+                    <div class="value">${lead.notes || 'Không có'}</div>
+                </div>
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn-submit" onclick="openUpdateStatusModal('${lead.leadId}', '${lead.status}')">Cập nhật trạng thái (UC44)</button>
+                </div>
+            `;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function createAppointment(leadId) {
+            // Set leadId vào form
+            document.getElementById('createAppointmentLeadId').value = leadId;
+            // Reset form
+            document.getElementById('createAppointmentForm').reset();
+            // Set lại leadId (vì reset đã xóa nó)
+            document.getElementById('createAppointmentLeadId').value = leadId;
+            // Mở modal
+            document.getElementById('createAppointmentModal').style.display = 'block';
+        }
+
+        function closeCreateAppointmentModal() {
+            document.getElementById('createAppointmentModal').style.display = 'none';
+            document.getElementById('createAppointmentForm').reset();
+        }
+
+        async function handleCreateAppointment(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const leadId = document.getElementById('createAppointmentLeadId').value;
+            const startTime = document.getElementById('createAppointmentStartTime').value;
+            const endTime = document.getElementById('createAppointmentEndTime').value;
+            const location = document.getElementById('createAppointmentLocation').value;
+            const notes = document.getElementById('createAppointmentNotes').value;
+
+            if (!leadId || !startTime || !location) {
+                showAlert('Vui lòng điền đầy đủ thông tin bắt buộc', false);
+                return;
+            }
+
+            try {
+                const requestData = {
+                    leadId: leadId,
+                    startTime: new Date(startTime).toISOString(),
+                    location: location,
+                    notes: notes || null
+                };
+
+                if (endTime) {
+                    requestData.endTime = new Date(endTime).toISOString();
+                }
+
+                const response = await fetch(`${API_BASE_URL}/appointments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tạo lịch hẹn');
+                }
+
+                showAlert('Tạo lịch hẹn thành công!', true);
+                closeCreateAppointmentModal();
+                // Reload danh sách leads để cập nhật status
+                loadLeads(currentPage);
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function openUpdateStatusModal(leadId, currentStatus) {
+            document.getElementById('updateStatusLeadId').value = leadId;
+            document.getElementById('updateStatusStatus').value = currentStatus;
+            document.getElementById('updateStatusNotes').value = '';
+            document.getElementById('updateStatusModal').style.display = 'block';
+            closeDetailModal();
+        }
+
+        function closeUpdateStatusModal() {
+            document.getElementById('updateStatusModal').style.display = 'none';
+            document.getElementById('updateStatusForm').reset();
+        }
+
+        async function handleUpdateStatus(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const leadId = document.getElementById('updateStatusLeadId').value;
+            const status = document.getElementById('updateStatusStatus').value;
+            const notes = document.getElementById('updateStatusNotes').value;
+
+            try {
+                const requestData = {
+                    status: status,
+                    notes: notes || null
+                };
+
+                const response = await fetch(`${API_BASE_URL}/leads/${leadId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể cập nhật trạng thái');
+                }
+
+                showAlert('Cập nhật trạng thái thành công!', true);
+                closeUpdateStatusModal();
+                loadLeads(currentPage);
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        window.onclick = function(event) {
+            const detailModal = document.getElementById('detailModal');
+            const createAppointmentModal = document.getElementById('createAppointmentModal');
+            const updateStatusModal = document.getElementById('updateStatusModal');
+            
+            if (event.target === detailModal) {
+                closeDetailModal();
+            }
+            if (event.target === createAppointmentModal) {
+                closeCreateAppointmentModal();
+            }
+            if (event.target === updateStatusModal) {
+                closeUpdateStatusModal();
+            }
+        }
+
+        window.onload = function() {
+            loadLeads();
+        };
+    </script>
+</body>
+</html>
+

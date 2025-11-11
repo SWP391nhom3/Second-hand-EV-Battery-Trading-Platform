@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Quản lý Lịch hẹn (Staff)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-filter {
+            background: #f5576c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-filter:hover {
+            background: #e0455a;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 14px;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-CONFIRMED {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-CANCELED {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-COMPLETED {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f8f9fa;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group-modal {
+            margin-bottom: 20px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group-modal input,
+        .form-group-modal textarea,
+        .form-group-modal select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group-modal textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-submit {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-submit:hover {
+            background: #218838;
+        }
+
+        .btn-close {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-close:hover {
+            background: #5a6268;
+        }
+
+        .detail-group {
+            margin-bottom: 15px;
+        }
+
+        .detail-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .detail-group .value {
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>📅 Quản lý Lịch hẹn</h1>
+                <p>UC41, UC42: Tạo và quản lý lịch hẹn</p>
+            </div>
+            <div class="header-actions">
+                <a href="/staff-dashboard.html" class="btn btn-primary">← Dashboard</a>
+                <button class="btn btn-success" onclick="openCreateModal()">+ Tạo lịch hẹn</button>
+                <button class="btn btn-primary" onclick="logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alert" class="alert"></div>
+
+        <div class="filters">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label>Lọc theo</label>
+                    <select id="filterType">
+                        <option value="">Tất cả</option>
+                        <option value="upcoming">Sắp tới</option>
+                        <option value="past">Đã qua</option>
+                        <option value="canceled">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <select id="filterStatus">
+                        <option value="">Tất cả</option>
+                        <option value="CONFIRMED">Đã xác nhận</option>
+                        <option value="CANCELED">Đã hủy</option>
+                        <option value="COMPLETED">Đã hoàn thành</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Sắp xếp theo</label>
+                    <select id="sortBy">
+                        <option value="StartTime">Thời gian bắt đầu</option>
+                        <option value="CreatedAt">Ngày tạo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Thứ tự</label>
+                    <select id="sortOrder">
+                        <option value="ASC">Tăng dần</option>
+                        <option value="DESC">Giảm dần</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-filter" onclick="loadAppointments()">Lọc</button>
+        </div>
+
+        <div class="table-container">
+            <div id="loading" class="loading">Đang tải...</div>
+            <table id="appointmentsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bài đăng</th>
+                        <th>Người mua</th>
+                        <th>Người bán</th>
+                        <th>Thời gian</th>
+                        <th>Địa điểm</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="appointmentsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button onclick="changePage(-1)" id="btnPrev">← Trước</button>
+            <span class="page-info" id="pageInfo">Trang 1 / 1</span>
+            <button onclick="changePage(1)" id="btnNext">Sau →</button>
+        </div>
+    </div>
+
+    <!-- Modal tạo Appointment -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tạo Lịch hẹn (UC41)</h2>
+                <span class="close" onclick="closeCreateModal()">&times;</span>
+            </div>
+            <form id="createForm" onsubmit="createAppointment(event)">
+                <div class="form-group-modal">
+                    <label>Lead ID *</label>
+                    <input type="text" id="createLeadId" required readonly>
+                </div>
+                <div class="form-group-modal">
+                    <label>Thời gian bắt đầu *</label>
+                    <input type="datetime-local" id="createStartTime" required>
+                </div>
+                <div class="form-group-modal">
+                    <label>Thời gian kết thúc</label>
+                    <input type="datetime-local" id="createEndTime">
+                </div>
+                <div class="form-group-modal">
+                    <label>Địa điểm *</label>
+                    <input type="text" id="createLocation" required>
+                </div>
+                <div class="form-group-modal">
+                    <label>Ghi chú</label>
+                    <textarea id="createNotes"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-close" onclick="closeCreateModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Tạo lịch hẹn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal cập nhật Appointment -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cập nhật Lịch hẹn (UC42)</h2>
+                <span class="close" onclick="closeUpdateModal()">&times;</span>
+            </div>
+            <form id="updateForm" onsubmit="updateAppointment(event)">
+                <input type="hidden" id="updateAppointmentId">
+                <div class="form-group-modal">
+                    <label>Thời gian bắt đầu</label>
+                    <input type="datetime-local" id="updateStartTime">
+                </div>
+                <div class="form-group-modal">
+                    <label>Thời gian kết thúc</label>
+                    <input type="datetime-local" id="updateEndTime">
+                </div>
+                <div class="form-group-modal">
+                    <label>Địa điểm</label>
+                    <input type="text" id="updateLocation">
+                </div>
+                <div class="form-group-modal">
+                    <label>Ghi chú</label>
+                    <textarea id="updateNotes"></textarea>
+                </div>
+                <div class="form-group-modal">
+                    <label>Trạng thái</label>
+                    <select id="updateStatus">
+                        <option value="CONFIRMED">Đã xác nhận</option>
+                        <option value="CANCELED">Đã hủy</option>
+                        <option value="COMPLETED">Đã hoàn thành</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-close" onclick="closeUpdateModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết Appointment -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết Lịch hẹn</h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div id="appointmentDetailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentAppointmentId = null;
+
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Kiểm tra URL params để tự động mở modal tạo appointment
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const leadId = urlParams.get('leadId');
+            const action = urlParams.get('action');
+
+            if (leadId && action === 'create') {
+                document.getElementById('createLeadId').value = leadId;
+                openCreateModal();
+                // Xóa params khỏi URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            loadAppointments();
+        };
+
+        async function loadAppointments(page = 1) {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            currentPage = page;
+            const filterType = document.getElementById('filterType').value;
+            const status = document.getElementById('filterStatus').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('appointmentsTable').style.display = 'none';
+                document.getElementById('pagination').style.display = 'none';
+
+                const params = new URLSearchParams({
+                    pageNumber: page.toString(),
+                    pageSize: '10',
+                    sortBy: sortBy,
+                    sortOrder: sortOrder
+                });
+
+                if (filterType === 'upcoming') {
+                    params.append('upcoming', 'true');
+                } else if (filterType === 'past') {
+                    params.append('past', 'true');
+                }
+
+                if (status) params.append('status', status);
+
+                const response = await fetch(`${API_BASE_URL}/appointments?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('jwt_token');
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                    throw new Error('Không thể tải danh sách lịch hẹn');
+                }
+
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Lỗi khi tải danh sách lịch hẹn');
+                }
+
+                displayAppointments(data.data.data || []);
+                updatePagination(data.data);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('appointmentsTable').style.display = 'table';
+                document.getElementById('pagination').style.display = 'flex';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayAppointments(appointments) {
+            const tbody = document.getElementById('appointmentsTableBody');
+            tbody.innerHTML = '';
+
+            if (appointments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #666;">Không có lịch hẹn nào</td></tr>';
+                return;
+            }
+
+            appointments.forEach(appointment => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${appointment.appointmentId.substring(0, 8)}...</td>
+                    <td>${appointment.postTitle || 'N/A'}</td>
+                    <td>${appointment.buyerName || appointment.buyerEmail || 'N/A'}</td>
+                    <td>${appointment.sellerName || appointment.sellerEmail || 'N/A'}</td>
+                    <td>${formatDateTime(appointment.startTime)}</td>
+                    <td>${appointment.location || 'N/A'}</td>
+                    <td><span class="status-badge status-${appointment.status}">${getStatusText(appointment.status)}</span></td>
+                    <td>
+                        <button class="btn-action btn-view" onclick="viewAppointmentDetail('${appointment.appointmentId}')">Xem</button>
+                        ${appointment.status !== 'CANCELED' && appointment.status !== 'COMPLETED' ? 
+                            `<button class="btn-action btn-edit" onclick="openUpdateModal('${appointment.appointmentId}')">Sửa</button>
+                             <button class="btn-action btn-cancel" onclick="cancelAppointment('${appointment.appointmentId}')">Hủy</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'CONFIRMED': 'Đã xác nhận',
+                'CANCELED': 'Đã hủy',
+                'COMPLETED': 'Đã hoàn thành'
+            };
+            return statusMap[status] || status;
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        function formatDateForInput(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function updatePagination(data) {
+            totalPages = data.totalPages || 1;
+            currentPage = data.pageNumber || 1;
+
+            document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages}`;
+            document.getElementById('btnPrev').disabled = currentPage <= 1;
+            document.getElementById('btnNext').disabled = currentPage >= totalPages;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadAppointments(newPage);
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('createModal').style.display = 'block';
+            // Reset form
+            document.getElementById('createForm').reset();
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').style.display = 'none';
+        }
+
+        async function createAppointment(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const leadId = document.getElementById('createLeadId').value;
+            const startTime = document.getElementById('createStartTime').value;
+            const endTime = document.getElementById('createEndTime').value;
+            const location = document.getElementById('createLocation').value;
+            const notes = document.getElementById('createNotes').value;
+
+            try {
+                const requestData = {
+                    leadId: leadId,
+                    startTime: new Date(startTime).toISOString(),
+                    location: location,
+                    notes: notes || null
+                };
+
+                if (endTime) {
+                    requestData.endTime = new Date(endTime).toISOString();
+                }
+
+                const response = await fetch(`${API_BASE_URL}/appointments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tạo lịch hẹn');
+                }
+
+                showAlert('Tạo lịch hẹn thành công!', true);
+                closeCreateModal();
+                loadAppointments();
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        async function openUpdateModal(appointmentId) {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tải thông tin lịch hẹn');
+                }
+
+                const appointment = data.data;
+                document.getElementById('updateAppointmentId').value = appointment.appointmentId;
+                document.getElementById('updateStartTime').value = formatDateForInput(appointment.startTime);
+                document.getElementById('updateEndTime').value = formatDateForInput(appointment.endTime || '');
+                document.getElementById('updateLocation').value = appointment.location || '';
+                document.getElementById('updateNotes').value = appointment.notes || '';
+                document.getElementById('updateStatus').value = appointment.status;
+
+                document.getElementById('updateModal').style.display = 'block';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        async function updateAppointment(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const appointmentId = document.getElementById('updateAppointmentId').value;
+            const startTime = document.getElementById('updateStartTime').value;
+            const endTime = document.getElementById('updateEndTime').value;
+            const location = document.getElementById('updateLocation').value;
+            const notes = document.getElementById('updateNotes').value;
+            const status = document.getElementById('updateStatus').value;
+
+            try {
+                const requestData = {};
+
+                if (startTime) requestData.startTime = new Date(startTime).toISOString();
+                if (endTime) requestData.endTime = new Date(endTime).toISOString();
+                if (location) requestData.location = location;
+                if (notes !== undefined) requestData.notes = notes;
+                if (status) requestData.status = status;
+
+                const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể cập nhật lịch hẹn');
+                }
+
+                showAlert('Cập nhật lịch hẹn thành công!', true);
+                closeUpdateModal();
+                loadAppointments();
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        async function cancelAppointment(appointmentId) {
+            if (!confirm('Bạn có chắc chắn muốn hủy lịch hẹn này?')) {
+                return;
+            }
+
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể hủy lịch hẹn');
+                }
+
+                showAlert('Hủy lịch hẹn thành công!', true);
+                loadAppointments();
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        async function viewAppointmentDetail(appointmentId) {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/appointments/${appointmentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tải chi tiết lịch hẹn');
+                }
+
+                const appointment = data.data;
+                displayAppointmentDetail(appointment);
+                document.getElementById('detailModal').style.display = 'block';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function displayAppointmentDetail(appointment) {
+            const content = document.getElementById('appointmentDetailContent');
+            content.innerHTML = `
+                <div class="detail-group">
+                    <label>ID Appointment</label>
+                    <div class="value">${appointment.appointmentId}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Bài đăng</label>
+                    <div class="value">${appointment.postTitle || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Người mua</label>
+                    <div class="value">${appointment.buyerName || appointment.buyerEmail || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Email người mua</label>
+                    <div class="value">${appointment.buyerEmail || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Người bán</label>
+                    <div class="value">${appointment.sellerName || appointment.sellerEmail || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Email người bán</label>
+                    <div class="value">${appointment.sellerEmail || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Thời gian bắt đầu</label>
+                    <div class="value">${formatDateTime(appointment.startTime)}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Thời gian kết thúc</label>
+                    <div class="value">${appointment.endTime ? formatDateTime(appointment.endTime) : 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Địa điểm</label>
+                    <div class="value">${appointment.location || 'N/A'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Trạng thái</label>
+                    <div class="value"><span class="status-badge status-${appointment.status}">${getStatusText(appointment.status)}</span></div>
+                </div>
+                <div class="detail-group">
+                    <label>Ghi chú</label>
+                    <div class="value">${appointment.notes || 'Không có'}</div>
+                </div>
+                <div class="detail-group">
+                    <label>Ngày tạo</label>
+                    <div class="value">${formatDateTime(appointment.createdAt)}</div>
+                </div>
+            `;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modals = ['createModal', 'updateModal', 'detailModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    if (modalId === 'createModal') closeCreateModal();
+                    if (modalId === 'updateModal') closeUpdateModal();
+                    if (modalId === 'detailModal') closeDetailModal();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

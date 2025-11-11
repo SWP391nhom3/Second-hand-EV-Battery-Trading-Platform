@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Đăng nhập</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-container h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-container p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .register-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #ddd;
+        }
+
+        .register-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🚗 EVehicle</h1>
+        <p>Đăng nhập để tiếp tục</p>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Email hoặc Số điện thoại:</label>
+                <input type="text" id="loginEmail" placeholder="user@example.com hoặc 0987654321" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+            </div>
+            <button class="btn" onclick="login()">Đăng nhập</button>
+            <button class="btn btn-secondary" onclick="showRegister()">Chưa có tài khoản? Đăng ký</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" style="display: none;">
+            <div class="register-section">
+                <h3>Đăng ký tài khoản mới</h3>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="regEmail" placeholder="user@example.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại:</label>
+                    <input type="text" id="regPhone" placeholder="0987654321" autocomplete="tel">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="regPassword" placeholder="Password" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password:</label>
+                        <input type="password" id="regConfirmPassword" placeholder="Confirm Password" autocomplete="new-password">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Họ và tên:</label>
+                    <input type="text" id="regFullName" placeholder="Nguyễn Văn A" autocomplete="name">
+                </div>
+                <button class="btn" onclick="register()">Đăng ký</button>
+                <button class="btn btn-secondary" onclick="showLogin()">Đã có tài khoản? Đăng nhập</button>
+            </div>
+        </div>
+
+        <div class="links">
+            <a href="/test-ui.html">➡️ Vào Test UI</a>
+            <a href="/swagger">📚 Swagger API</a>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('alert').style.display = 'none';
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAlert('Vui lòng nhập email/số điện thoại và password.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        emailOrPhone: email,
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.message || `Đăng nhập thất bại (Status: ${response.status})`;
+                    console.error('Login failed:', response.status, errorData);
+                    showAlert(errorMessage, false);
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('Login response:', data);
+                console.log('Response status:', response.status);
+                console.log('Response OK:', response.ok);
+                console.log('Has accessToken:', !!data.accessToken);
+                console.log('Has refreshToken:', !!data.refreshToken);
+
+                // Kiểm tra nếu có accessToken và refreshToken
+                if (data.accessToken && data.refreshToken) {
+                    setTokens(data.accessToken, data.refreshToken);
+                    console.log('Tokens saved to localStorage');
+                    console.log('AccessToken saved:', !!localStorage.getItem('access_token'));
+                    console.log('RefreshToken saved:', !!localStorage.getItem('refresh_token'));
+                    
+                    showAlert('Đăng nhập thành công! Đang chuyển hướng...', true);
+                    
+                    // Sử dụng role từ response luôn, không cần gọi API /auth/me
+                    const role = data.role;
+                    setTimeout(() => {
+                        if (role === 'ADMIN') {
+                            window.location.href = '/admin-dashboard.html';
+                        } else if (role === 'STAFF') {
+                            window.location.href = '/staff-dashboard.html';
+                        } else {
+                            window.location.href = '/test-ui.html';
+                        }
+                    }, 1000);
+                } else {
+                    console.error('Missing tokens in response. Data:', JSON.stringify(data, null, 2));
+                    showAlert('Đăng nhập thất bại: Response không chứa token. Vui lòng thử lại.', false);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert(`Lỗi kết nối: ${error.message}`, false);
+            }
+        }
+
+        async function register() {
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const fullName = document.getElementById('regFullName').value;
+
+            if (!email || !phone || !password || !confirmPassword) {
+                showAlert('Vui lòng điền đầy đủ thông tin bắt buộc.', false);
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('Password và Confirm Password không khớp.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        phoneNumber: phone,
+                        password: password,
+                        confirmPassword: confirmPassword,
+                        fullName: fullName || null
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    let errorMessage = errorData.message || `Đăng ký thất bại (Status: ${response.status})`;
+                    if (errorData.errors) {
+                        const errorList = Array.isArray(errorData.errors) 
+                            ? errorData.errors.map(e => e.message || e).join(', ')
+                            : Object.values(errorData.errors).flat().join(', ');
+                        errorMessage = errorList || errorMessage;
+                    }
+                    console.error('Register failed:', response.status, errorData);
+                    showAlert(errorMessage, false);
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('Register response:', data);
+                console.log('Response status:', response.status);
+                console.log('Response OK:', response.ok);
+                console.log('Has accessToken:', !!data.accessToken);
+                console.log('Has refreshToken:', !!data.refreshToken);
+
+                // Kiểm tra nếu có accessToken và refreshToken
+                if (data.accessToken && data.refreshToken) {
+                    setTokens(data.accessToken, data.refreshToken);
+                    console.log('Tokens saved to localStorage');
+                    console.log('AccessToken saved:', !!localStorage.getItem('access_token'));
+                    console.log('RefreshToken saved:', !!localStorage.getItem('refresh_token'));
+                    
+                    showAlert('Đăng ký thành công! Đang chuyển hướng...', true);
+                    setTimeout(() => {
+                        window.location.href = '/test-ui.html';
+                    }, 1000);
+                } else {
+                    console.error('Missing tokens in response. Data:', JSON.stringify(data, null, 2));
+                    showAlert('Đăng ký thất bại: Response không chứa token. Vui lòng thử lại.', false);
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showAlert(`Lỗi kết nối: ${error.message}`, false);
+            }
+        }
+
+        // Check if already logged in
+        window.onload = async function() {
+            const accessToken = getAccessToken();
+            if (accessToken) {
+                console.log('Found access token, checking user...');
+                // Check user role and redirect accordingly
+                try {
+                    const userData = await getCurrentUser();
+                    if (userData && userData.role) {
+                        const role = userData.role;
+                        console.log('User role:', role);
+                        if (role === 'ADMIN') {
+                            window.location.href = '/admin-dashboard.html';
+                        } else if (role === 'STAFF') {
+                            window.location.href = '/staff-dashboard.html';
+                        } else {
+                            window.location.href = '/test-ui.html';
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error checking user role:', error);
+                }
+                
+                // Default redirect
+                window.location.href = '/test-ui.html';
+            } else {
+                console.log('No access token found');
+            }
+
+            // Allow Enter key to submit
+            document.getElementById('loginEmail').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('loginPassword').focus();
+                }
+            });
+
+            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    login();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
+

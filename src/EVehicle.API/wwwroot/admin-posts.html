@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Quản lý Bài đăng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-filter {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-filter:hover {
+            background: #5568d3;
+        }
+
+        .posts-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .post-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .post-item:hover {
+            background: #f9f9f9;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #5568d3;
+        }
+
+        .pagination {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f0f0f0;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            padding: 8px 12px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .post-detail {
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .post-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .proof-badge {
+            background: #ffc107;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-approved {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-denied {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>📝 Quản lý Bài đăng</h1>
+                <p>Duyệt và quản lý bài đăng</p>
+            </div>
+            <div class="header-actions">
+                <a href="/admin-dashboard.html" class="btn btn-primary">← Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alert" class="alert"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('pending')" id="tab-pending">
+                ⏳ Chờ Duyệt
+            </button>
+            <button class="tab" onclick="switchTab('processed')" id="tab-processed">
+                ✅ Đã Xử Lý
+            </button>
+        </div>
+
+        <div class="filters">
+            <div class="filters-grid">
+                <div class="form-group" id="statusFilterGroup" style="display: none;">
+                    <label>Trạng thái:</label>
+                    <select id="filterStatus">
+                        <option value="">Tất cả</option>
+                        <option value="APPROVED">Đã duyệt</option>
+                        <option value="DENIED">Đã từ chối</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Từ khóa:</label>
+                    <input type="text" id="filterKeyword" placeholder="Tìm kiếm...">
+                </div>
+                <div class="form-group">
+                    <label>Danh mục:</label>
+                    <select id="filterCategory">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Thương hiệu:</label>
+                    <input type="text" id="filterBrand" placeholder="Thương hiệu">
+                </div>
+                <div class="form-group">
+                    <label>Sắp xếp:</label>
+                    <select id="filterSort">
+                        <option value="createdAt">Ngày tạo (Mới nhất)</option>
+                        <option value="approvedAt">Ngày duyệt (Mới nhất)</option>
+                        <option value="rejectedAt">Ngày từ chối (Mới nhất)</option>
+                        <option value="price">Giá (Thấp → Cao)</option>
+                        <option value="price,desc">Giá (Cao → Thấp)</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-filter" onclick="loadPosts()">🔍 Tìm kiếm</button>
+        </div>
+
+        <div class="posts-list">
+            <div id="loading" class="loading">Đang tải...</div>
+            <div id="postsContainer"></div>
+            <div id="pagination" class="pagination"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Post Detail -->
+    <div id="postDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết Bài đăng</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="postDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Approve Post -->
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Duyệt Bài đăng</h2>
+                <button class="close" onclick="closeApproveModal()">&times;</button>
+            </div>
+            <div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Chọn Staff để gán:</label>
+                    <select id="staffSelect" style="width: 100%; padding: 10px; margin-top: 5px;">
+                        <option value="">Đang tải danh sách Staff...</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-action" onclick="closeApproveModal()" style="background: #6c757d;">Hủy</button>
+                    <button class="btn btn-approve" onclick="confirmApprove()">✅ Duyệt Bài đăng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Reject Post -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Từ chối Bài đăng</h2>
+                <button class="close" onclick="closeRejectModal()">&times;</button>
+            </div>
+            <div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Lý do từ chối:</label>
+                    <textarea id="rejectionReason" style="width: 100%; padding: 10px; margin-top: 5px; min-height: 100px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Nhập lý do từ chối bài đăng (tối thiểu 10 ký tự)"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-action" onclick="closeRejectModal()" style="background: #6c757d;">Hủy</button>
+                    <button class="btn btn-reject" onclick="confirmReject()">❌ Từ chối Bài đăng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let currentPostId = null;
+        let staffList = [];
+        let currentTab = 'pending'; // 'pending' or 'processed'
+
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            return true;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            currentPage = 1;
+            
+            // Update tab UI
+            document.getElementById('tab-pending').classList.toggle('active', tab === 'pending');
+            document.getElementById('tab-processed').classList.toggle('active', tab === 'processed');
+            
+            // Show/hide status filter
+            document.getElementById('statusFilterGroup').style.display = tab === 'processed' ? 'block' : 'none';
+            
+            // Update sort options
+            const sortSelect = document.getElementById('filterSort');
+            if (tab === 'processed') {
+                sortSelect.innerHTML = `
+                    <option value="createdAt">Ngày tạo (Mới nhất)</option>
+                    <option value="approvedAt">Ngày duyệt (Mới nhất)</option>
+                    <option value="rejectedAt">Ngày từ chối (Mới nhất)</option>
+                    <option value="price">Giá (Thấp → Cao)</option>
+                    <option value="price,desc">Giá (Cao → Thấp)</option>
+                `;
+            } else {
+                sortSelect.innerHTML = `
+                    <option value="createdAt">Ngày tạo (Mới nhất)</option>
+                    <option value="price">Giá (Thấp → Cao)</option>
+                    <option value="price,desc">Giá (Cao → Thấp)</option>
+                `;
+            }
+            
+            // Load posts
+            loadPosts();
+        }
+
+        async function loadStaffList() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && Array.isArray(data.data)) {
+                        staffList = data.data.filter(user => user.role === 'STAFF' && user.status === 'ACTIVE');
+                        const select = document.getElementById('staffSelect');
+                        select.innerHTML = '<option value="">Chọn Staff...</option>';
+                        staffList.forEach(staff => {
+                            const option = document.createElement('option');
+                            option.value = staff.id;
+                            option.textContent = `${staff.fullName || staff.email} (${staff.email})`;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading staff list:', error);
+            }
+        }
+
+        async function loadPosts() {
+            if (!checkAuth()) return;
+
+            const keyword = document.getElementById('filterKeyword').value;
+            const categoryId = document.getElementById('filterCategory').value;
+            const brand = document.getElementById('filterBrand').value;
+            const sort = document.getElementById('filterSort').value;
+            const status = document.getElementById('filterStatus')?.value || '';
+
+            const sortParts = sort.split(',');
+            const sortBy = sortParts[0];
+            const sortDirection = sortParts[1] || 'desc';
+
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('postsContainer').innerHTML = '';
+
+                const params = new URLSearchParams({
+                    pageNumber: currentPage,
+                    pageSize: pageSize,
+                    sortBy: sortBy,
+                    sortDirection: sortDirection
+                });
+
+                if (keyword) params.append('keyword', keyword);
+                if (categoryId) params.append('categoryId', categoryId);
+                if (brand) params.append('brand', brand);
+                if (status && currentTab === 'processed') params.append('status', status);
+
+                // Choose endpoint based on current tab
+                const endpoint = currentTab === 'pending' 
+                    ? `${API_BASE_URL}/admin/posts/pending`
+                    : `${API_BASE_URL}/admin/posts/approved-rejected`;
+
+                const response = await fetch(`${endpoint}?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('jwt_token');
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                    throw new Error('Không thể tải danh sách bài đăng');
+                }
+
+                const data = await response.json();
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.success && data.data && data.data.length > 0) {
+                    if (currentTab === 'pending') {
+                        renderPendingPosts(data.data);
+                    } else {
+                        renderProcessedPosts(data.data);
+                    }
+                    renderPagination(data.pageNumber, data.totalPages, data.totalCount);
+                } else {
+                    const emptyMessage = currentTab === 'pending' 
+                        ? 'Hiện tại không có bài đăng nào chờ duyệt.'
+                        : 'Hiện tại không có bài đăng nào đã được xử lý.';
+                    document.getElementById('postsContainer').innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📭</div>
+                            <h3>Không có bài đăng nào</h3>
+                            <p>${emptyMessage}</p>
+                        </div>
+                    `;
+                    document.getElementById('pagination').innerHTML = '';
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function renderPendingPosts(posts) {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = posts.map(post => `
+                <div class="post-item">
+                    <div class="post-header">
+                        <div style="flex: 1;">
+                            <div class="post-title">${post.title}</div>
+                            <div class="post-meta">
+                                <span>💰 ${formatPrice(post.price)}</span>
+                                <span>🏷️ ${post.brand} ${post.model}</span>
+                                <span>📂 ${post.categoryName}</span>
+                                <span>👤 ${post.sellerName}</span>
+                                <span>📧 ${post.sellerEmail}</span>
+                                <span>📅 ${formatDate(post.createdAt)}</span>
+                                ${post.hasProofImage ? '<span class="proof-badge">✓ Có bằng chứng</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn-action btn-view" onclick="viewPostDetail('${post.postId}')">👁️ Xem</button>
+                            <button class="btn-action btn-approve" onclick="showApproveModal('${post.postId}')">✅ Duyệt</button>
+                            <button class="btn-action btn-reject" onclick="showRejectModal('${post.postId}')">❌ Từ chối</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProcessedPosts(posts) {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = posts.map(post => {
+                const statusBadge = post.status === 'APPROVED' 
+                    ? '<span class="status-badge status-approved">✅ Đã duyệt</span>'
+                    : '<span class="status-badge status-denied">❌ Đã từ chối</span>';
+                
+                const statusInfo = post.status === 'APPROVED'
+                    ? `<span>✅ Duyệt: ${formatDate(post.approvedAt)}</span>${post.approvedByName ? `<span>👨‍💼 Bởi: ${post.approvedByName}</span>` : ''}${post.assignedStaffName ? `<span>👤 Staff: ${post.assignedStaffName}</span>` : ''}`
+                    : `<span>❌ Từ chối: ${formatDate(post.rejectedAt)}</span>${post.rejectedByName ? `<span>👨‍💼 Bởi: ${post.rejectedByName}</span>` : ''}${post.rejectionReason ? `<span title="${post.rejectionReason}">📝 Lý do: ${post.rejectionReason.substring(0, 50)}${post.rejectionReason.length > 50 ? '...' : ''}</span>` : ''}`;
+
+                return `
+                    <div class="post-item">
+                        <div class="post-header">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                    <div class="post-title">${post.title}</div>
+                                    ${statusBadge}
+                                </div>
+                                <div class="post-meta">
+                                    <span>💰 ${formatPrice(post.price)}</span>
+                                    <span>🏷️ ${post.brand} ${post.model}</span>
+                                    <span>📂 ${post.categoryName}</span>
+                                    <span>👤 ${post.sellerName}</span>
+                                    <span>📧 ${post.sellerEmail}</span>
+                                    <span>📅 Tạo: ${formatDate(post.createdAt)}</span>
+                                    ${statusInfo}
+                                    ${post.hasProofImage ? '<span class="proof-badge">✓ Có bằng chứng</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn-action btn-view" onclick="viewPostDetail('${post.postId}')">👁️ Xem</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(pageNumber, totalPages, totalCount) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = `
+                <button onclick="changePage(${pageNumber - 1})" ${pageNumber <= 1 ? 'disabled' : ''}>← Trước</button>
+                <span class="page-info">Trang ${pageNumber} / ${totalPages} (Tổng: ${totalCount})</span>
+                <button onclick="changePage(${pageNumber + 1})" ${pageNumber >= totalPages ? 'disabled' : ''}>Sau →</button>
+            `;
+        }
+
+        function changePage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                loadPosts();
+            }
+        }
+
+        async function viewPostDetail(postId) {
+            if (!checkAuth()) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/posts/${postId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể tải chi tiết bài đăng');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    renderPostDetail(data.data);
+                    document.getElementById('postDetailModal').style.display = 'block';
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function renderPostDetail(post) {
+            const content = document.getElementById('postDetailContent');
+            content.innerHTML = `
+                <div class="post-detail">
+                    <div class="detail-row">
+                        <div class="detail-label">Tiêu đề:</div>
+                        <div class="detail-value">${post.title}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Mô tả:</div>
+                        <div class="detail-value">${post.description || 'Không có mô tả'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Giá:</div>
+                        <div class="detail-value">${formatPrice(post.price)}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Thương hiệu:</div>
+                        <div class="detail-value">${post.brand}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Model:</div>
+                        <div class="detail-value">${post.model}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Danh mục:</div>
+                        <div class="detail-value">${post.categoryName}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Năm sản xuất:</div>
+                        <div class="detail-value">${post.productionYear}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Tình trạng:</div>
+                        <div class="detail-value">${post.condition}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Dung lượng pin:</div>
+                        <div class="detail-value">${post.batteryCapacityCurrent} kWh</div>
+                    </div>
+                    ${post.mileage ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Số KM:</div>
+                        <div class="detail-value">${post.mileage.toLocaleString()} km</div>
+                    </div>
+                    ` : ''}
+                    <div class="detail-row">
+                        <div class="detail-label">Địa điểm:</div>
+                        <div class="detail-value">${post.location || 'Không có'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Người bán:</div>
+                        <div class="detail-value">${post.seller?.fullName || post.seller?.email} (${post.seller?.email})</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Trạng thái:</div>
+                        <div class="detail-value">${getStatusLabel(post.status)}</div>
+                    </div>
+                    ${post.approvedBy ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Đã duyệt bởi:</div>
+                        <div class="detail-value">${post.approvedBy.fullName || post.approvedBy.email} (${post.approvedBy.email}) - ${formatDate(post.approvedAt)}</div>
+                    </div>
+                    ` : ''}
+                    ${post.rejectedBy ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Đã từ chối bởi:</div>
+                        <div class="detail-value">${post.rejectedBy.fullName || post.rejectedBy.email} (${post.rejectedBy.email}) - ${formatDate(post.rejectedAt)}</div>
+                    </div>
+                    ` : ''}
+                    ${post.rejectionReason ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Lý do từ chối:</div>
+                        <div class="detail-value">${post.rejectionReason}</div>
+                    </div>
+                    ` : ''}
+                    ${post.proofImageUrl ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Ảnh bằng chứng:</div>
+                        <div class="detail-value">
+                            <img src="${post.proofImageUrl}" alt="Proof" class="post-image" onclick="window.open('${post.proofImageUrl}', '_blank')">
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${post.imageUrls && post.imageUrls.length > 0 ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Ảnh sản phẩm:</div>
+                        <div class="detail-value">
+                            <div class="post-images">
+                                ${post.imageUrls.map(url => `<img src="${url}" alt="Product" class="post-image" onclick="window.open('${url}', '_blank')">`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function closeModal() {
+            document.getElementById('postDetailModal').style.display = 'none';
+        }
+
+        function showApproveModal(postId) {
+            currentPostId = postId;
+            loadStaffList();
+            document.getElementById('approveModal').style.display = 'block';
+        }
+
+        function closeApproveModal() {
+            document.getElementById('approveModal').style.display = 'none';
+            document.getElementById('staffSelect').value = '';
+            currentPostId = null;
+        }
+
+        async function confirmApprove() {
+            const staffId = document.getElementById('staffSelect').value;
+            if (!staffId) {
+                showAlert('Vui lòng chọn Staff để gán cho bài đăng', false);
+                return;
+            }
+
+            if (!checkAuth()) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/posts/${currentPostId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        staffId: staffId
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showAlert('Duyệt bài đăng thành công!', true);
+                    closeApproveModal();
+                    loadPosts();
+                } else {
+                    showAlert(data.message || 'Không thể duyệt bài đăng', false);
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function showRejectModal(postId) {
+            currentPostId = postId;
+            document.getElementById('rejectModal').style.display = 'block';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            document.getElementById('rejectionReason').value = '';
+            currentPostId = null;
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('rejectionReason').value.trim();
+            if (!reason || reason.length < 10) {
+                showAlert('Vui lòng nhập lý do từ chối (tối thiểu 10 ký tự)', false);
+                return;
+            }
+
+            if (!checkAuth()) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/posts/${currentPostId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rejectionReason: reason
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showAlert('Từ chối bài đăng thành công!', true);
+                    closeRejectModal();
+                    loadPosts();
+                } else {
+                    showAlert(data.message || 'Không thể từ chối bài đăng', false);
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(price);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'PENDING': '⏳ Chờ duyệt',
+                'APPROVED': '✅ Đã duyệt',
+                'DENIED': '❌ Đã từ chối',
+                'DRAFT': '📝 Nháp'
+            };
+            return labels[status] || status;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = ['postDetailModal', 'approveModal', 'rejectModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    if (modalId === 'postDetailModal') closeModal();
+                    if (modalId === 'approveModal') closeApproveModal();
+                    if (modalId === 'rejectModal') closeRejectModal();
+                }
+            });
+        }
+
+        window.onload = function() {
+            if (!checkAuth()) return;
+            loadPosts();
+            loadStaffList();
+        };
+    </script>
+</body>
+</html>
+

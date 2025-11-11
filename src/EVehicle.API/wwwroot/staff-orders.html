@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Quản lý Đơn hàng (Staff)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-submit {
+            background: #4facfe;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #3d8bfe;
+        }
+
+        .btn-close {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .btn-close:hover {
+            background: #5a6268;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-PENDING_PAYMENT {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-PAID {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-CONFIRMED {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-COMPLETED {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #138496;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group-modal {
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .form-actions {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>🛒 Quản lý Đơn hàng</h1>
+                <p>UC28: Thanh toán Giao dịch Mua bán</p>
+            </div>
+            <div class="header-actions">
+                <a href="/staff-dashboard.html" class="btn btn-primary">← Dashboard</a>
+                <button class="btn btn-primary" onclick="logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alert" class="alert"></div>
+
+        <div class="card">
+            <h2>Tạo Đơn hàng mới (UC28)</h2>
+            <form id="createOrderForm" onsubmit="handleCreateOrder(event)">
+                <div class="form-group">
+                    <label>Lead ID (nếu có)</label>
+                    <input type="text" id="orderLeadId" placeholder="Để trống nếu không có Lead">
+                </div>
+                <div class="form-group">
+                    <label>Post ID *</label>
+                    <input type="text" id="orderPostId" required>
+                </div>
+                <div class="form-group">
+                    <label>Buyer ID *</label>
+                    <input type="text" id="orderBuyerId" required>
+                </div>
+                <div class="form-group">
+                    <label>Giá cuối cùng (VND) *</label>
+                    <input type="number" id="orderFinalPrice" required min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ giao hàng</label>
+                    <textarea id="orderShippingAddress" placeholder="Nhập địa chỉ giao hàng (nếu có)"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Tạo đơn hàng</button>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <h2 style="margin-bottom: 20px;">Danh sách Đơn hàng</h2>
+            <div id="loading" class="loading">Đang tải...</div>
+            <table id="ordersTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bài đăng</th>
+                        <th>Người mua</th>
+                        <th>Giá</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết Order -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết Đơn hàng</h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div id="orderDetailContent" style="padding: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal tạo Payment -->
+    <div id="createPaymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tạo Thanh toán (UC28)</h2>
+                <span class="close" onclick="closeCreatePaymentModal()">&times;</span>
+            </div>
+            <form id="createPaymentForm" onsubmit="handleCreatePayment(event)">
+                <div class="form-group-modal">
+                    <label>Order ID *</label>
+                    <input type="text" id="paymentOrderId" required readonly>
+                </div>
+                <div class="form-group-modal">
+                    <label>Phương thức thanh toán *</label>
+                    <select id="paymentGateway" required>
+                        <option value="VNPAY">VNPay</option>
+                        <option value="MOMO">MoMo</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-close" onclick="closeCreatePaymentModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Tạo thanh toán</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function handleCreateOrder(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const leadId = document.getElementById('orderLeadId').value;
+            const postId = document.getElementById('orderPostId').value;
+            const buyerId = document.getElementById('orderBuyerId').value;
+            const finalPrice = parseFloat(document.getElementById('orderFinalPrice').value);
+            const shippingAddress = document.getElementById('orderShippingAddress').value;
+
+            try {
+                const requestData = {
+                    postId: postId,
+                    buyerId: buyerId,
+                    finalPrice: finalPrice,
+                    shippingAddress: shippingAddress || null
+                };
+
+                if (leadId) {
+                    requestData.leadId = leadId;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tạo đơn hàng');
+                }
+
+                showAlert('Tạo đơn hàng thành công!', true);
+                document.getElementById('createOrderForm').reset();
+                // Load orders lại
+                loadOrders();
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        async function loadOrders() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('ordersTable').style.display = 'none';
+
+                // Note: API này chưa có, cần tạo endpoint GET /api/orders để lấy danh sách orders
+                // Tạm thời hiển thị thông báo
+                showAlert('API lấy danh sách đơn hàng chưa được implement. Vui lòng sử dụng API GET /api/orders/{id} để xem chi tiết.', false);
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function viewOrderDetail(orderId) {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tải chi tiết đơn hàng');
+                }
+
+                const order = data.data;
+                displayOrderDetail(order);
+                document.getElementById('detailModal').style.display = 'block';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        function displayOrderDetail(order) {
+            const content = document.getElementById('orderDetailContent');
+            content.innerHTML = `
+                <div class="form-group-modal">
+                    <label>Order ID</label>
+                    <div>${order.orderId}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Bài đăng</label>
+                    <div>${order.postTitle || 'N/A'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Người mua</label>
+                    <div>${order.buyerName || 'N/A'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Người bán</label>
+                    <div>${order.sellerName || 'N/A'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Giá cuối cùng</label>
+                    <div>${formatCurrency(order.finalPrice)}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Trạng thái</label>
+                    <div><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Phương thức thanh toán</label>
+                    <div>${order.paymentMethod || 'Chưa chọn'}</div>
+                </div>
+                <div class="form-group-modal">
+                    <label>Ngày tạo</label>
+                    <div>${formatDate(order.createdAt)}</div>
+                </div>
+                ${order.status === 'PENDING_PAYMENT' ? `
+                    <div class="form-actions">
+                        <button type="button" class="btn-submit" onclick="openCreatePaymentModal('${order.orderId}')">Tạo thanh toán</button>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'PENDING_PAYMENT': 'Chờ thanh toán',
+                'PAID': 'Đã thanh toán',
+                'CONFIRMED': 'Đã xác nhận',
+                'SHIPPING': 'Đang giao hàng',
+                'DELIVERED': 'Đã giao hàng',
+                'COMPLETED': 'Hoàn thành',
+                'CANCELLED': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function openCreatePaymentModal(orderId) {
+            document.getElementById('paymentOrderId').value = orderId;
+            document.getElementById('paymentGateway').value = 'VNPAY';
+            document.getElementById('createPaymentModal').style.display = 'block';
+            closeDetailModal();
+        }
+
+        function closeCreatePaymentModal() {
+            document.getElementById('createPaymentModal').style.display = 'none';
+            document.getElementById('createPaymentForm').reset();
+        }
+
+        async function handleCreatePayment(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const orderId = document.getElementById('paymentOrderId').value;
+            const paymentGateway = document.getElementById('paymentGateway').value;
+
+            try {
+                const requestData = {
+                    orderId: orderId,
+                    paymentGateway: paymentGateway
+                };
+
+                const response = await fetch(`${API_BASE_URL}/orders/payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tạo thanh toán');
+                }
+
+                showAlert(`Tạo thanh toán thành công! Payment URL: ${data.data.paymentUrl || 'N/A'}`, true);
+                closeCreatePaymentModal();
+                
+                if (data.data.paymentUrl) {
+                    if (confirm('Bạn có muốn chuyển đến trang thanh toán không?')) {
+                        window.open(data.data.paymentUrl, '_blank');
+                    }
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        window.onclick = function(event) {
+            const detailModal = document.getElementById('detailModal');
+            const createPaymentModal = document.getElementById('createPaymentModal');
+            
+            if (event.target === detailModal) {
+                closeDetailModal();
+            }
+            if (event.target === createPaymentModal) {
+                closeCreatePaymentModal();
+            }
+        }
+
+        window.onload = function() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+            }
+        };
+    </script>
+</body>
+</html>
+

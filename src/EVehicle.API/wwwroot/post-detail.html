@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Chi tiết Bài đăng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .post-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .post-images img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .post-images img:hover {
+            transform: scale(1.05);
+        }
+
+        .post-info {
+            margin-bottom: 15px;
+        }
+
+        .post-info h3 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .post-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-description {
+            color: #555;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        /* Auction Section */
+        .auction-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auction-info h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .auction-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .auction-stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .auction-stat label {
+            display: block;
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .auction-stat .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .bid-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-success:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .bids-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .bid-item {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bid-item.winning {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .bid-info {
+            flex: 1;
+        }
+
+        .bid-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .bid-user {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .bid-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .countdown {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f5576c;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🚗 EVehicle - Chi tiết Bài đăng</h1>
+            <div>
+                <button class="btn btn-primary" onclick="window.location.href='/posts.html'">📋 Danh sách</button>
+                <button class="btn btn-primary" onclick="window.location.href='/'">🏠 Trang chủ</button>
+                <button class="btn btn-primary" onclick="checkAuth()">🔐 Đăng nhập</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Post Details -->
+            <div class="card" id="postDetails">
+                <div class="loading">Đang tải thông tin bài đăng...</div>
+            </div>
+
+            <!-- Auction Section -->
+            <div class="card" id="auctionSection" style="display: none;">
+                <h2>🔨 Đấu giá</h2>
+                <div id="auctionInfo"></div>
+                <div class="bid-form">
+                    <div class="form-group">
+                        <label>Giá đấu của bạn (VNĐ):</label>
+                        <input type="number" id="bidAmount" placeholder="Nhập giá đấu" min="0" step="1000">
+                    </div>
+                    <button class="btn btn-success" onclick="placeBid()">Đặt giá đấu</button>
+                </div>
+                <div class="bids-list" id="bidsList">
+                    <div class="loading">Đang tải danh sách đấu giá...</div>
+                </div>
+            </div>
+
+            <!-- Lead Section -->
+            <div class="card" id="leadSection" style="display: none;">
+                <h2>📅 Đặt lịch xem / Yêu cầu Môi giới</h2>
+                <div id="leadMessage"></div>
+                <div class="action-buttons">
+                    <button class="btn btn-info" onclick="createLead('SCHEDULE_VIEW')">
+                        📅 Đặt lịch xem
+                    </button>
+                    <button class="btn btn-warning" onclick="createLead('SCHEDULE_VIEW')">
+                        🤝 Yêu cầu Môi giới
+                    </button>
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #666;">
+                        <strong>💡 Lưu ý:</strong> Cả hai nút đều tạo Lead loại "SCHEDULE_VIEW". Staff sẽ liên hệ để hỗ trợ bạn.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <!-- Quick Actions -->
+            <div class="card">
+                <h2>Thao tác nhanh</h2>
+                <div class="action-buttons" id="quickActions">
+                    <!-- Actions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Seller Info -->
+            <div class="card" id="sellerInfo">
+                <h2>Thông tin người bán</h2>
+                <div class="loading">Đang tải...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+        let currentPostId = null;
+        let auctionEndTime = null;
+        let countdownInterval = null;
+
+        // Get postId from URL
+        function getPostIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Get token from localStorage
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        // Get auth headers
+        function getAuthHeaders() {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return headers;
+        }
+
+        // Check authentication
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info', targetElement = null) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.marginBottom = '15px';
+            
+            // Remove existing alerts in the target element or first card
+            const container = targetElement || document.querySelector('.container');
+            if (container) {
+                container.querySelectorAll('.alert').forEach(alert => alert.remove());
+                container.insertBefore(alertDiv, container.firstChild);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+                
+                // Scroll to alert
+                alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // Load post details
+        async function loadPostDetails() {
+            const postId = getPostIdFromUrl();
+            if (!postId) {
+                document.getElementById('postDetails').innerHTML = 
+                    '<div class="alert alert-error">Không tìm thấy ID bài đăng trong URL.</div>';
+                return;
+            }
+
+            currentPostId = postId;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    displayPostDetails(data.data);
+                    
+                    // Load auction if enabled (check both camelCase and PascalCase)
+                    const isAuctionEnabled = data.data.auctionEnabled || data.data.AuctionEnabled || false;
+                    if (isAuctionEnabled) {
+                        loadBids(postId);
+                    }
+                    
+                    // Show lead section for approved posts (both auction and non-auction)
+                    const status = data.data.status || data.data.Status || '';
+                    const isSold = data.data.isSold || data.data.IsSold || false;
+                    if (status === 'APPROVED' && !isSold) {
+                        document.getElementById('leadSection').style.display = 'block';
+                    }
+                    
+                    // Display seller info (public view chỉ có sellerName, full view có seller object)
+                    if (data.data.seller) {
+                        // Full view (ADMIN/STAFF)
+                        displaySellerInfo(data.data.seller);
+                    } else if (data.data.sellerName) {
+                        // Public view (Guest/MEMBER)
+                        displaySellerInfoPublic(data.data.sellerName);
+                    } else {
+                        // Fallback
+                        displaySellerInfoPublic('Người bán');
+                    }
+                } else {
+                    document.getElementById('postDetails').innerHTML = 
+                        `<div class="alert alert-error">${data.message || 'Không thể tải thông tin bài đăng'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('postDetails').innerHTML = 
+                    `<div class="alert alert-error">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        // Display post details
+        function displayPostDetails(post) {
+            const postDetailsDiv = document.getElementById('postDetails');
+            
+            let imagesHtml = '';
+            if (post.imageUrls && post.imageUrls.length > 0) {
+                imagesHtml = '<div class="post-images">';
+                post.imageUrls.forEach(img => {
+                    imagesHtml += `<img src="${img}" alt="Post image" onclick="window.open('${img}', '_blank')">`;
+                });
+                imagesHtml += '</div>';
+            }
+
+            let metaHtml = '';
+            if (post.brand) metaHtml += `<span>🏷️ ${post.brand}</span>`;
+            if (post.model) metaHtml += `<span>🚗 ${post.model}</span>`;
+            if (post.productionYear) metaHtml += `<span>📅 ${post.productionYear}</span>`;
+            if (post.location) metaHtml += `<span>📍 ${post.location}</span>`;
+            if (post.condition) metaHtml += `<span>✨ ${post.condition}</span>`;
+
+            let auctionHtml = '';
+            // Check auctionEnabled (camelCase from JSON)
+            if (post.auctionEnabled || post.AuctionEnabled) {
+                const endTime = post.auctionEndTime || post.AuctionEndTime;
+                auctionEndTime = endTime ? new Date(endTime) : null;
+                auctionHtml = `
+                    <div class="auction-info">
+                        <h3>🔨 Đang đấu giá</h3>
+                        <div class="auction-stats">
+                            <div class="auction-stat">
+                                <label>Giá khởi điểm</label>
+                                <div class="value">${formatCurrency((post.startingBid || post.StartingBid) || post.price)} VNĐ</div>
+                            </div>
+                            ${(post.buyNowPrice || post.BuyNowPrice) ? `
+                            <div class="auction-stat" style="background: rgba(255, 215, 0, 0.3); border: 2px solid gold;">
+                                <label>💰 Giá mua ngay</label>
+                                <div class="value">${formatCurrency(post.buyNowPrice || post.BuyNowPrice)} VNĐ</div>
+                                <small style="font-size: 10px; opacity: 0.9; margin-top: 5px; display: block;">
+                                    Đặt giá này để mua ngay và kết thúc đấu giá
+                                </small>
+                            </div>
+                            ` : ''}
+                            <div class="auction-stat">
+                                <label>Thời gian kết thúc</label>
+                                <div class="value" id="auctionEndTime">${formatDateTime(post.auctionEndTime || post.AuctionEndTime)}</div>
+                            </div>
+                        </div>
+                        ${auctionEndTime ? `<div class="countdown" id="countdown">Đang tính...</div>` : ''}
+                    </div>
+                `;
+                
+                // Start countdown if auction is active
+                if (auctionEndTime && auctionEndTime > new Date()) {
+                    startCountdown();
+                    document.getElementById('auctionSection').style.display = 'block';
+                } else if (auctionEndTime && auctionEndTime <= new Date()) {
+                    // Auction ended
+                    document.getElementById('auctionSection').style.display = 'block';
+                    document.getElementById('bidAmount').disabled = true;
+                    document.querySelector('#auctionSection .btn-success').disabled = true;
+                }
+            }
+
+            postDetailsDiv.innerHTML = `
+                ${imagesHtml}
+                <div class="post-info">
+                    <h3>${post.title || 'Không có tiêu đề'}</h3>
+                    <div class="post-price">${formatCurrency(post.price)} VNĐ</div>
+                    <div class="post-meta">
+                        ${metaHtml}
+                    </div>
+                    ${auctionHtml}
+                    <div class="post-description">
+                        <h4>Mô tả:</h4>
+                        <p>${post.description || 'Không có mô tả'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            if (!amount) return '0';
+            return new Intl.NumberFormat('vi-VN').format(amount);
+        }
+
+        // Format datetime
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        // Start countdown
+        function startCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            countdownInterval = setInterval(() => {
+                if (!auctionEndTime) return;
+
+                const now = new Date();
+                const diff = auctionEndTime - now;
+
+                if (diff <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown').textContent = 'Đấu giá đã kết thúc';
+                    document.getElementById('bidAmount').disabled = true;
+                    document.querySelector('.btn-success').disabled = true;
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                let countdownText = '';
+                if (days > 0) countdownText += `${days} ngày `;
+                if (hours > 0) countdownText += `${hours} giờ `;
+                if (minutes > 0) countdownText += `${minutes} phút `;
+                countdownText += `${seconds} giây`;
+
+                document.getElementById('countdown').textContent = `⏰ Còn lại: ${countdownText}`;
+            }, 1000);
+        }
+
+        // Load bids
+        async function loadBids(postId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/bids/post/${postId}`);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    displayBids(data.data);
+                    updateAuctionInfo(data.data);
+                } else {
+                    document.getElementById('bidsList').innerHTML = 
+                        `<div class="alert alert-error">${data.message || 'Không thể tải danh sách đấu giá'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('bidsList').innerHTML = 
+                    `<div class="alert alert-error">Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        // Display bids
+        function displayBids(bidData) {
+            const bidsListDiv = document.getElementById('bidsList');
+            
+            // Get bids array (support both camelCase and PascalCase)
+            const bids = bidData.bids || bidData.Bids || [];
+            let bidsHtml = '<h3 style="margin-bottom: 15px;">Lịch sử đấu giá</h3>';
+            
+            if (bids.length === 0) {
+                bidsHtml += '<div class="alert alert-info">Chưa có ai đấu giá.</div>';
+            } else {
+                bids.forEach(bid => {
+                    const bidAmount = bid.bidAmount || bid.BidAmount || 0;
+                    const bidderName = bid.bidderName || bid.BidderName || 'Ẩn danh';
+                    const createdAt = bid.createdAt || bid.CreatedAt;
+                    const isWinning = bid.isWinningBid || bid.IsWinningBid || false;
+                    
+                    bidsHtml += `
+                        <div class="bid-item ${isWinning ? 'winning' : ''}">
+                            <div class="bid-info">
+                                <div class="bid-amount">${formatCurrency(bidAmount)} VNĐ</div>
+                                <div class="bid-user">👤 ${bidderName}</div>
+                                <div class="bid-time">🕒 ${formatDateTime(createdAt)}</div>
+                            </div>
+                            ${isWinning ? '<span style="color: #28a745; font-weight: bold;">🏆 Thắng</span>' : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            bidsListDiv.innerHTML = bidsHtml;
+        }
+
+        // Update auction info
+        function updateAuctionInfo(bidData) {
+            const auctionInfoDiv = document.getElementById('auctionInfo');
+            if (!auctionInfoDiv) return;
+
+            const currentHighest = bidData.currentHighestBid || bidData.CurrentHighestBid || 
+                                   bidData.startingBid || bidData.StartingBid || 0;
+            const totalBids = bidData.totalBids || bidData.TotalBids || 0;
+            const buyNowPrice = bidData.buyNowPrice || bidData.BuyNowPrice;
+
+            let infoHtml = `
+                <div class="auction-stats">
+                    <div class="auction-stat">
+                        <label>Giá cao nhất hiện tại</label>
+                        <div class="value">${formatCurrency(currentHighest)} VNĐ</div>
+                    </div>
+                    <div class="auction-stat">
+                        <label>Tổng số lượt đấu</label>
+                        <div class="value">${totalBids}</div>
+                    </div>
+                </div>
+            `;
+
+            auctionInfoDiv.innerHTML = infoHtml;
+
+            // Update minimum and maximum bid amount
+            const bidAmountInput = document.getElementById('bidAmount');
+            if (bidAmountInput) {
+                const minBid = currentHighest ? currentHighest + 1 : (bidData.startingBid || bidData.StartingBid || 0) + 1;
+                bidAmountInput.min = minBid;
+                
+                if (buyNowPrice) {
+                    // Có giá mua ngay: giá đấu có thể <= giá mua ngay (nếu = thì tự động mua ngay)
+                    // Không set max để cho phép đặt giá = BuyNowPrice
+                    bidAmountInput.placeholder = `Tối thiểu: ${formatCurrency(minBid)} VNĐ. Đặt ${formatCurrency(buyNowPrice)} VNĐ để mua ngay và kết thúc đấu giá.`;
+                } else {
+                    // Không có giá mua ngay: không giới hạn trên
+                    bidAmountInput.placeholder = `Tối thiểu: ${formatCurrency(minBid)} VNĐ`;
+                }
+            }
+        }
+
+        // Place bid
+        async function placeBid() {
+            const token = getToken();
+            if (!token) {
+                showAlert('Vui lòng đăng nhập để đấu giá', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+                return;
+            }
+
+            const bidAmount = parseFloat(document.getElementById('bidAmount').value);
+            if (!bidAmount || bidAmount <= 0) {
+                showAlert('Vui lòng nhập giá đấu hợp lệ', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/bids`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        postId: currentPostId,
+                        bidAmount: bidAmount
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Kiểm tra xem có phải mua ngay không (message chứa "Mua ngay thành công")
+                    if (data.message && data.message.includes('Mua ngay thành công')) {
+                        showAlert(data.message, 'success');
+                        // Nếu mua ngay thành công, disable form đấu giá và reload page để cập nhật trạng thái
+                        document.getElementById('bidAmount').disabled = true;
+                        document.querySelector('#auctionSection .btn-success').disabled = true;
+                        // Reload page sau 3 giây để hiển thị trạng thái đấu giá đã kết thúc
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        showAlert(data.message || 'Đặt giá đấu thành công!', 'success');
+                        document.getElementById('bidAmount').value = '';
+                        // Reload bids
+                        setTimeout(() => {
+                            loadBids(currentPostId);
+                        }, 1000);
+                    }
+                } else {
+                    showAlert(data.message || 'Không thể đặt giá đấu', 'error');
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, 'error');
+            }
+        }
+
+        // Create lead
+        async function createLead(leadType) {
+            const token = getToken();
+            if (!token) {
+                showAlert('Vui lòng đăng nhập để sử dụng tính năng này', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+                return;
+            }
+
+            if (!currentPostId) {
+                showAlert('Không tìm thấy ID bài đăng', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/leads`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        postId: currentPostId,
+                        leadType: leadType
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showAlert(
+                        leadType === 'SCHEDULE_VIEW' 
+                            ? 'Đặt lịch xem thành công! Admin sẽ sớm gán Staff để hỗ trợ bạn.' 
+                            : 'Yêu cầu môi giới thành công! Admin sẽ sớm gán Staff để hỗ trợ bạn.',
+                        'success'
+                    );
+                    
+                    // Disable buttons
+                    document.querySelectorAll('#leadSection .btn').forEach(btn => {
+                        btn.disabled = true;
+                    });
+                } else {
+                    showAlert(data.message || 'Không thể tạo Lead', 'error');
+                }
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, 'error');
+            }
+        }
+
+        // Load on page load
+        window.onload = function() {
+            loadPostDetails();
+        };
+
+        // Display seller info (full info for ADMIN/STAFF)
+        function displaySellerInfo(seller) {
+            const sellerInfoDiv = document.getElementById('sellerInfo');
+            sellerInfoDiv.innerHTML = `
+                <h2>Thông tin người bán</h2>
+                <div style="margin-top: 15px;">
+                    <p><strong>Họ tên:</strong> ${seller.fullName || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${seller.email || 'N/A'}</p>
+                    <p><strong>Số điện thoại:</strong> ${seller.phoneNumber || 'N/A'}</p>
+                </div>
+            `;
+        }
+
+        // Display seller info (public view - chỉ tên)
+        function displaySellerInfoPublic(sellerName) {
+            const sellerInfoDiv = document.getElementById('sellerInfo');
+            sellerInfoDiv.innerHTML = `
+                <h2>Thông tin người bán</h2>
+                <div style="margin-top: 15px;">
+                    <p><strong>Người bán:</strong> ${sellerName || 'N/A'}</p>
+                    <p style="color: #999; font-size: 12px; margin-top: 10px;">
+                        💡 Đăng nhập để xem thêm thông tin và liên hệ trực tiếp
+                    </p>
+                </div>
+            `;
+        }
+
+        // Cleanup on page unload
+        window.onbeforeunload = function() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+        };
+    </script>
+</body>
+</html>
+

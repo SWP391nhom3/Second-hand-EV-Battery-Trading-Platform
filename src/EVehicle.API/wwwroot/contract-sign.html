@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVehicle - Ký Hợp đồng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-submit {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: #5568d3;
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .contract-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            border: 1px solid #ddd;
+        }
+
+        .signature-section {
+            background: #fff;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .signature-canvas-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        #signatureCanvas {
+            width: 100%;
+            height: 200px;
+            cursor: crosshair;
+            display: block;
+        }
+
+        .signature-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-clear:hover {
+            background: #c82333;
+        }
+
+        .signature-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .signature-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .contract-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-item .value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-PENDING_SIGNATURE {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-SIGNED {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .signature-instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .signature-instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .signature-instructions ul {
+            margin-left: 20px;
+            color: #856404;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>✍️ Ký Hợp đồng Số hóa</h1>
+                <p>UC29: Người mua/người bán ký hợp đồng điện tử</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alert" class="alert"></div>
+
+        <div id="loading" class="loading">Đang tải hợp đồng...</div>
+
+        <div id="contractContainer" style="display: none;">
+            <div class="card">
+                <h2>Thông tin Hợp đồng</h2>
+                <div class="contract-info" id="contractInfo"></div>
+                
+                <h2 style="margin-top: 30px;">Nội dung Hợp đồng</h2>
+                <div class="contract-content" id="contractContent"></div>
+            </div>
+
+            <div class="card">
+                <h2>Ký Hợp đồng (UC29)</h2>
+                
+                <div class="signature-instructions">
+                    <h3>Hướng dẫn ký hợp đồng:</h3>
+                    <ul>
+                        <li>Vẽ chữ ký của bạn trong khung bên dưới bằng chuột hoặc ngón tay</li>
+                        <li>Nếu đã ký rồi, bạn sẽ thấy chữ ký hiện tại</li>
+                        <li>Khi cả hai bên đã ký, hợp đồng sẽ được hoàn tất</li>
+                    </ul>
+                </div>
+
+                <div class="signature-section">
+                    <label>Chữ ký của bạn *</label>
+                    <div class="signature-canvas-container">
+                        <canvas id="signatureCanvas"></canvas>
+                    </div>
+                    <div class="signature-actions">
+                        <button type="button" class="btn-clear" onclick="clearSignature()">Xóa chữ ký</button>
+                    </div>
+                    <div class="signature-preview" id="signaturePreview" style="display: none;">
+                        <p style="margin-bottom: 10px; font-size: 12px; color: #666;">Chữ ký hiện tại:</p>
+                        <img id="currentSignature" alt="Current Signature">
+                    </div>
+                </div>
+
+                <form id="signContractForm" onsubmit="handleSignContract(event)">
+                    <div class="form-group">
+                        <label>Loại ký *</label>
+                        <select id="signType" required>
+                            <option value="SIGNATURE">Chữ ký điện tử (Vẽ)</option>
+                            <option value="OTP">OTP (Nhập mã OTP)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="otpGroup" style="display: none;">
+                        <label>Mã OTP *</label>
+                        <input type="text" id="otpCode" placeholder="Nhập mã OTP (mock: nhập bất kỳ)">
+                    </div>
+                    <button type="submit" class="btn-submit" id="signButton">Ký hợp đồng</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:9190/api';
+        let contract = null;
+        let canvas = null;
+        let ctx = null;
+        let isDrawing = false;
+        let signatureData = null;
+
+        function getToken() {
+            return localStorage.getItem('jwt_token');
+        }
+
+        function getContractIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('contractId');
+        }
+
+        function showAlert(message, isSuccess = false) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert ${isSuccess ? 'success' : 'error'}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            if (isSuccess) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                localStorage.removeItem('jwt_token');
+                window.location.href = '/login.html';
+            }
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('signatureCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Touch events
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                             e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                signatureData = canvas.toDataURL('image/png');
+            }
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            signatureData = null;
+        }
+
+        async function loadContract() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const contractId = getContractIdFromUrl();
+            if (!contractId) {
+                showAlert('Không tìm thấy Contract ID trong URL', false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/contracts/${contractId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể tải hợp đồng');
+                }
+
+                contract = data.data;
+                displayContract(contract);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('contractContainer').style.display = 'block';
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayContract(contract) {
+            // Display contract info
+            const infoHtml = `
+                <div class="info-item">
+                    <label>Contract ID</label>
+                    <div class="value">${contract.contractId}</div>
+                </div>
+                <div class="info-item">
+                    <label>Trạng thái</label>
+                    <div class="value"><span class="status-badge status-${contract.status}">${getStatusText(contract.status)}</span></div>
+                </div>
+                <div class="info-item">
+                    <label>Người mua đã ký</label>
+                    <div class="value">${contract.isBuyerSigned ? '✓ Đã ký' : '✗ Chưa ký'}</div>
+                </div>
+                <div class="info-item">
+                    <label>Người bán đã ký</label>
+                    <div class="value">${contract.isSellerSigned ? '✓ Đã ký' : '✗ Chưa ký'}</div>
+                </div>
+            `;
+            document.getElementById('contractInfo').innerHTML = infoHtml;
+
+            // Display contract content
+            document.getElementById('contractContent').textContent = contract.contractContent || 'N/A';
+
+            // Check if user has already signed
+            // Note: In real implementation, we need to check if current user is buyer or seller
+            // For now, we'll just check if contract is already signed
+            if (contract.status === 'SIGNED') {
+                document.getElementById('signContractForm').style.display = 'none';
+                showAlert('Hợp đồng đã được cả hai bên ký!', true);
+            }
+
+            // Show current signature if exists
+            // Note: We need to know if current user is buyer or seller
+            // For demo, we'll show buyer signature if exists
+            if (contract.isBuyerSigned || contract.isSellerSigned) {
+                // In real implementation, we would check which signature belongs to current user
+                // and display it. For now, we'll just show a message
+                document.getElementById('signaturePreview').style.display = 'block';
+                document.getElementById('currentSignature').alt = 'Bạn đã ký hợp đồng này';
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'DRAFT': 'Nháp',
+                'PENDING_SIGNATURE': 'Chờ ký',
+                'SIGNED': 'Đã ký'
+            };
+            return statusMap[status] || status;
+        }
+
+        document.getElementById('signType').addEventListener('change', function() {
+            const otpGroup = document.getElementById('otpGroup');
+            if (this.value === 'OTP') {
+                otpGroup.style.display = 'block';
+                document.getElementById('signatureCanvas').style.display = 'none';
+                document.getElementById('signatureCanvas').parentElement.previousElementSibling.style.display = 'none';
+            } else {
+                otpGroup.style.display = 'none';
+                document.getElementById('signatureCanvas').style.display = 'block';
+                document.getElementById('signatureCanvas').parentElement.previousElementSibling.style.display = 'block';
+            }
+        });
+
+        async function handleSignContract(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const contractId = getContractIdFromUrl();
+            const signType = document.getElementById('signType').value;
+            let signature = '';
+
+            if (signType === 'SIGNATURE') {
+                if (!signatureData) {
+                    showAlert('Vui lòng vẽ chữ ký của bạn', false);
+                    return;
+                }
+                signature = signatureData;
+            } else {
+                const otpCode = document.getElementById('otpCode').value;
+                if (!otpCode) {
+                    showAlert('Vui lòng nhập mã OTP', false);
+                    return;
+                }
+                signature = otpCode; // In real implementation, this would be verified
+            }
+
+            try {
+                const requestData = {
+                    signature: signature,
+                    signType: signType
+                };
+
+                const response = await fetch(`${API_BASE_URL}/contracts/${contractId}/sign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Không thể ký hợp đồng');
+                }
+
+                showAlert('Ký hợp đồng thành công! ' + data.message, true);
+                
+                // Reload contract to show updated status
+                setTimeout(() => {
+                    loadContract();
+                }, 1000);
+            } catch (error) {
+                showAlert(`Lỗi: ${error.message}`, false);
+            }
+        }
+
+        window.onload = function() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+            } else {
+                initCanvas();
+                loadContract();
+            }
+        };
+    </script>
+</body>
+</html>
+
