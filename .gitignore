@@ -462,13 +462,8 @@ logs/
 # HTTP scratch files
 **/*.http
 
-# Frontend (in monorepo)
-Second-hand-EV-Battery-Trading-Platform-FE/node_modules/
-Second-hand-EV-Battery-Trading-Platform-FE/dist/
-Second-hand-EV-Battery-Trading-Platform-FE/.vite/
-Second-hand-EV-Battery-Trading-Platform-FE/.env
-!Second-hand-EV-Battery-Trading-Platform-FE/.env.example
-Second-hand-EV-Battery-Trading-Platform-FE/.DS_Store
+# Frontend (in monorepo) - ignore entire directory
+Second-hand-EV-Battery-Trading-Platform-FE/
 
 # Tooling rule files (local only)
 .clinerules/byterover-rules.md
