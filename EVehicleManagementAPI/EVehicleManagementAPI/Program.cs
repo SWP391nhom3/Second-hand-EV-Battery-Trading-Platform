@@ -321,6 +321,41 @@ static async Task SeedDefaultData(EVehicleDbContext db)
         }
     }
 
+    // ========== ENSURE MEMBER RECORDS FOR ADMIN & STAFF ==========
+    var admin = await db.Accounts.FirstOrDefaultAsync(a => a.Email == adminEmail);
+    if (admin != null && !await db.Members.AnyAsync(m => m.AccountId == admin.AccountId))
+    {
+        db.Members.Add(new Member
+        {
+            AccountId = admin.AccountId,
+            FullName = "Quản trị viên",
+            AvatarUrl = "",
+            Address = "Head Office",
+            JoinedAt = DateTime.Now,
+            Rating = 5.0m,
+            Status = "ACTIVE"
+        });
+        await db.SaveChangesAsync();
+        Console.WriteLine("✅ Member for admin created");
+    }
+
+    var staffAcc = await db.Accounts.FirstOrDefaultAsync(a => a.Email == staffEmail);
+    if (staffAcc != null && !await db.Members.AnyAsync(m => m.AccountId == staffAcc.AccountId))
+    {
+        db.Members.Add(new Member
+        {
+            AccountId = staffAcc.AccountId,
+            FullName = "Nhân viên hỗ trợ",
+            AvatarUrl = "",
+            Address = "Branch HCM",
+            JoinedAt = DateTime.Now,
+            Rating = 5.0m,
+            Status = "ACTIVE"
+        });
+        await db.SaveChangesAsync();
+        Console.WriteLine("✅ Member for staff created");
+    }
+
     // ========== SEED POST PACKAGES ==========
     if (!await db.PostPackages.AnyAsync())
     {
@@ -358,6 +393,83 @@ static async Task SeedDefaultData(EVehicleDbContext db)
         }
         await db.SaveChangesAsync();
         Console.WriteLine("✅ Post packages created (3 packages)");
+    }
+
+    // ========== SEED DEMO POSTS FOR USER1 ==========
+    var user1 = await db.Accounts.Include(a => a.Member).FirstOrDefaultAsync(a => a.Email == "user1@demo.com");
+    if (user1 != null)
+    {
+        var user1Member = await db.Members.FirstOrDefaultAsync(m => m.AccountId == user1.AccountId);
+        if (user1Member != null)
+        {
+            if (!await db.Posts.AnyAsync(p => p.MemberId == user1Member.MemberId))
+            {
+                var pendingPost = new Post
+                {
+                    MemberId = user1Member.MemberId,
+                    Title = "Bài đăng demo (PENDING)",
+                    Description = "Bài đăng chờ duyệt để demo quy trình.",
+                    Price = 1500000,
+                    PostType = "battery",
+                    TransactionType = "DIRECT",
+                    Status = "PENDING",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                db.Posts.Add(pendingPost);
+
+                var approvedPost = new Post
+                {
+                    MemberId = user1Member.MemberId,
+                    Title = "Bài đăng demo (APPROVED)",
+                    Description = "Bài đăng đã duyệt để demo thanh toán PayOS.",
+                    Price = 200000,
+                    PostType = "battery",
+                    TransactionType = "DIRECT",
+                    Status = "APPROVED",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                db.Posts.Add(approvedPost);
+
+                await db.SaveChangesAsync();
+                Console.WriteLine("✅ Demo posts for user1 created (PENDING, APPROVED)");
+
+                // Link a package subscription in PENDING status to the approved post for demo
+                var anyPackage = await db.PostPackages.OrderByDescending(p => p.PriorityLevel).FirstOrDefaultAsync();
+                if (anyPackage != null)
+                {
+                    // Create a pending payment for the package
+                    var transferContent = $"POST-{approvedPost.PostId}-PREMIUM-DEM0"; // simple demo content
+                    var payment = new Payment
+                    {
+                        BuyerId = user1Member.MemberId,
+                        SellerId = user1Member.MemberId,
+                        Amount = anyPackage.Price,
+                        Method = "PayOS",
+                        TransferContent = transferContent,
+                        Status = "Pending",
+                        CreatedAt = DateTime.Now
+                    };
+                    db.Payments.Add(payment);
+                    await db.SaveChangesAsync();
+
+                    var sub = new PostPackageSub
+                    {
+                        PostId = approvedPost.PostId,
+                        PackageId = anyPackage.PackageId,
+                        MemberId = user1Member.MemberId,
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now,
+                        PaymentId = payment.Id,
+                        Status = "PENDING"
+                    };
+                    db.PostPackageSubs.Add(sub);
+                    await db.SaveChangesAsync();
+                    Console.WriteLine("✅ Demo PostPackageSub + Payment created (PENDING)");
+                }
+            }
+        }
     }
 
     // ========== SEED VEHICLE MODELS (Sample) ==========
@@ -445,7 +557,8 @@ static async Task SeedDefaultData(EVehicleDbContext db)
                 Description = "Pin lithium-ion 48V phổ biến cho xe đạp điện",
                 IsCustom = false,
                 IsApproved = true,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                ImageUrl = "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRZvyg6dzSGThMX0G6zmftL94LPrIuWtg_6vLG_XSShgkzh-XtEuOMJCYiknCvQWHVaqvRoUi8LyKXSiNJC3VeRacezyemWmA"
             },
             new BatteryModel
             {
